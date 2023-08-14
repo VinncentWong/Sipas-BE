@@ -1,25 +1,18 @@
 package bcc.sipas.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
-@Table
+@Table(name = "orang_tua")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Setter
 @Getter
-@DynamicInsert
-@DynamicUpdate
 public class Orangtua {
 
     private Long id;
@@ -35,17 +28,13 @@ public class Orangtua {
 
     private boolean isConnectedWithFaskes;
 
-    @CreationTimestamp
     private LocalDate createdAt;
 
-    @UpdateTimestamp
     private LocalDate updatedAt;
 
     private LocalDate deletedAt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "orangtua")
     private List<DataAnak> dataAnak;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "orangtua")
     private List<DataKehamilan> dataKehamilan;
 }
