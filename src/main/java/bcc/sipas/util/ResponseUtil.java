@@ -6,10 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-@Component
-public class ResponseUtil {
+public final class ResponseUtil {
 
-    public ResponseEntity<Response> sendResponse(HttpStatus status, Response data){
+    public static <T> ResponseEntity<Response<T>> sendResponse(HttpStatus status, Response<T> data){
         return ResponseEntity
                 .status(status.value())
                 .contentType(MediaType.APPLICATION_JSON)

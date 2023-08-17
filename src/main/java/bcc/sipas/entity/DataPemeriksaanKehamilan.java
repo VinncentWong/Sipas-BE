@@ -1,27 +1,19 @@
 package bcc.sipas.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Entity
-@Table
+@Table("data_pemeriksaan_kehamilan")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-@DynamicInsert
-@DynamicUpdate
 public class DataPemeriksaanKehamilan {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate tanggalPemeriksaan;
@@ -40,17 +32,15 @@ public class DataPemeriksaanKehamilan {
 
     private String pesanTambahan;
 
-    @Column(name = "fk_ortu_id")
+    @Column("fk_ortu_id")
     private Integer fkOrtuId;
 
-    @CreationTimestamp
     private LocalDate createdAt;
 
-    @UpdateTimestamp
     private LocalDate updatedAt;
 
     private LocalDate deletedAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private FasilitasKesehatan faskes;
+    @Column("fk_faskes_id")
+    private Integer fkFaskesId;
 }

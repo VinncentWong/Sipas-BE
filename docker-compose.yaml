@@ -1,17 +1,29 @@
 version: '3.7'
 services:
-  mysql:
-    image: "mysql:latest"
+#  mysql:
+#    image: "mysql:latest"
+#    volumes:
+#      - "mysql_volume:/var/lib/mysql"
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=sipasdb
+#    restart: on-failure
+#    ports:
+#      - "3307:3306"
+#    networks:
+#      - "sipas_network"
+  postgres:
+    image: "postgres:latest"
     volumes:
-      - "mysql_volume:/var/lib/mysql"
-    environment:
-      - MYSQL_ROOT_PASSWORD=sipasdb
+      - "postgres_volume:/var/lib/postgresql/data"
     restart: on-failure
-    ports:
-      - "3307:3306"
     networks:
       - "sipas_network"
+    environment:
+      - POSTGRES_PASSWORD=sipasdb
+    ports:
+      - "5432:5432"
 networks:
   sipas_network:
 volumes:
   mysql_volume:
+  postgres_volume:

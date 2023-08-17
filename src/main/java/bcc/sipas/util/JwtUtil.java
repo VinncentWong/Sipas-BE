@@ -20,12 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
-public class JwtUtil {
+public final class JwtUtil {
 
-    private final Key keys = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final Key keys = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(JwtAuthentication<?> authentication){
+    public static String generateToken(JwtAuthentication<?> authentication){
         String username = authentication.getName();
         Object id = authentication.getId();
         Optional<GrantedAuthority> role = authentication.getAuthorities()
@@ -39,15 +38,15 @@ public class JwtUtil {
         LocalDate now = LocalDate.now();
         return Jwts.builder()
                 .addClaims(claims)
-                .signWith(this.keys)
+                .signWith(keys)
                 .setIssuedAt(Date.from(Instant.ofEpochMilli(now.toEpochDay())))
                 .compact();
     }
 
-    public boolean validateToken(String token){
+    public static boolean validateToken(String token){
         try{
             Jwts.parserBuilder()
-                    .setSigningKey(this.keys)
+                    .setSigningKey(keys)
                     .build()
                     .parseClaimsJws(token);
             return true;
@@ -56,9 +55,9 @@ public class JwtUtil {
         }
     }
 
-    public Authentication getAuthentication(String token){
+    public static Authentication getAuthentication(String token){
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(this.keys)
+                .setSigningKey(keys)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -69,7 +68,10 @@ public class JwtUtil {
                 Arrays.stream(((String)auth).split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-        var jwtAuth = new JwtAuthentication<Object>(claims.getSubject(), null, list);
+        var jwtAuth = list.isEmpty()?
+                new JwtAuthentication<Object>(claims.getSubject(), null)
+                :
+                new JwtAuthentication<Object>(claims.getSubject(), null, list);
         jwtAuth.setId(claims.getId());
         return jwtAuth;
     }

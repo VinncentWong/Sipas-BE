@@ -1,9 +1,7 @@
 package bcc.sipas.security.filter;
 
 import bcc.sipas.constant.SecurityConstant;
-import bcc.sipas.constant.UnauthorizedException;
-import bcc.sipas.exception.EmptyAuthorizationHeader;
-import bcc.sipas.security.authentication.JwtAuthentication;
+import bcc.sipas.exception.UnauthorizedException;
 import bcc.sipas.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,9 +18,6 @@ import reactor.core.publisher.Mono;
 public class JwtFilter extends AuthenticationWebFilter {
 
     @Autowired
-    private JwtUtil util;
-
-    @Autowired
     @Qualifier("exceptionHandlerMethodResolver")
     private ExceptionHandlerMethodResolver exceptionHandlerMethodResolver;
 
@@ -37,18 +32,22 @@ public class JwtFilter extends AuthenticationWebFilter {
             String token = req.getHeaders()
                     .toSingleValueMap()
                     .get(SecurityConstant.AUTHORIZATION);
-            if(StringUtils.hasText(token) && util.validateToken(token)){
+            if(StringUtils.hasText(token) && JwtUtil.validateToken(token)){
                 return Mono.fromRunnable(() -> {
-                    Authentication auth = util.getAuthentication(token);
-                    ReactiveSecurityContextHolder.getContext()
-                            .contextWrite(context -> {
-                                context.put("auth", auth);
-                                return context;
-                            });
-                    chain.filter(exchange);
+                    Authentication auth = JwtUtil.getAuthentication(token);
+                    if (auth.isAuthenticated()){
+                        ReactiveSecurityContextHolder.getContext()
+                                .contextWrite(context -> {
+                                    context.put("auth", auth);
+                                    return context;
+                                });
+                        chain.filter(exchange);
+                    } else {
+                        this.exceptionHandlerMethodResolver.resolveMethod(new UnauthorizedException("token tidak valid"));
+                    }
                 });
             } else {
-                return Mono.<Void>fromRunnable(() -> {
+                return Mono.fromRunnable(() -> {
                     this.exceptionHandlerMethodResolver.resolveMethod(new UnauthorizedException("token tidak valid"));
                 });
             }

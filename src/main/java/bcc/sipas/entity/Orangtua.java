@@ -33,8 +33,4 @@ public class Orangtua {
     private LocalDate updatedAt;
 
     private LocalDate deletedAt;
-
-    private List<DataAnak> dataAnak;
-
-    private List<DataKehamilan> dataKehamilan;
 }

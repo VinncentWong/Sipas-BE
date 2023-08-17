@@ -1,41 +1,31 @@
 package bcc.sipas.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Entity
-@Table
+@Table("grup_whatsapp")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-@DynamicInsert
-@DynamicUpdate
 public class GrupWhatsapp {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String namaGrup;
 
     private String linkGrup;
 
-    @CreationTimestamp
     private LocalDate createdAt;
 
-    @UpdateTimestamp
     private LocalDate updatedAt;
 
     private LocalDate deletedAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private FasilitasKesehatan faskes;
+    @Column("fk_faskes_id")
+    private Long fkFaskesId;
 }

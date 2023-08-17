@@ -2,13 +2,16 @@ package bcc.sipas.configuration;
 
 import io.asyncer.r2dbc.mysql.MySqlConnectionConfiguration;
 import io.asyncer.r2dbc.mysql.MySqlConnectionFactory;
-import lombok.extern.slf4j.Slf4j;
+import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
+import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+
 @Configuration
-public class MySQLConnectionFactoryConfiguration {
+public class PostgreSQLConnectionFactoryConfiguration {
 
     @Value("${db.r2dbc.username}")
     private String username;
@@ -27,14 +30,16 @@ public class MySQLConnectionFactoryConfiguration {
     private String db;
 
     @Bean
-    public MySqlConnectionFactory mysqlConnectionFactory(){
-        return MySqlConnectionFactory.from(
-                MySqlConnectionConfiguration.builder()
-                        .username(this.username)
-                        .password(this.password)
+    public PostgresqlConnectionFactory mysqlConnectionFactory(){
+        return new PostgresqlConnectionFactory(
+                PostgresqlConnectionConfiguration
+                        .builder()
                         .host(this.host)
                         .port(Integer.parseInt(this.port))
-                        .database(db)
+                        .database(this.db)
+                        .username(this.username)
+                        .password(this.password)
+                        .connectTimeout(Duration.ofSeconds(5))
                         .build()
         );
     }

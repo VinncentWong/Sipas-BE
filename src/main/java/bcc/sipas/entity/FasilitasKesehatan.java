@@ -1,29 +1,20 @@
 package bcc.sipas.entity;
 
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
-@Table
+@Table("fasilitas_kesehatan")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-@DynamicInsert
-@DynamicUpdate
 public class FasilitasKesehatan {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
@@ -34,20 +25,9 @@ public class FasilitasKesehatan {
 
     private String kodeUnik;
 
-    @CreationTimestamp
     private LocalDate createdAt;
 
-    @UpdateTimestamp
     private LocalDate updatedAt;
 
     private LocalDate deletedAt;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "faskes", fetch = FetchType.LAZY)
-    private List<DataPemeriksaanKehamilan> dataPemeriksaanKehamilan;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "faskes", fetch = FetchType.LAZY)
-    private List<GrupWhatsapp> grupWhatsapp;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "faskes", fetch = FetchType.LAZY)
-    private List<ResepMakanan> resepMakanan;
 }
