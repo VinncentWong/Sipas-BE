@@ -1,0 +1,16 @@
+db:
+  r2dbc:
+    username: "postgres"
+    password: "sipasdb"
+    host: "localhost"
+    port: 5432
+    url: "r2dbc:pool:mysql://localhost:3307/sipas"
+    database: "sipas"
+
+r2dbc:
+  name: centwong
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG
