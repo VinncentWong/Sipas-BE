@@ -2,9 +2,6 @@ package bcc.sipas.seeder;
 
 import bcc.sipas.app.ortu.repository.OrangtuaRepository;
 import bcc.sipas.constant.SeedConstant;
-import io.asyncer.r2dbc.mysql.MySqlConnection;
-import io.asyncer.r2dbc.mysql.MySqlConnectionFactory;
-import io.asyncer.r2dbc.mysql.MySqlResult;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import io.r2dbc.postgresql.api.PostgresqlConnection;
 import io.r2dbc.postgresql.api.PostgresqlResult;
@@ -36,10 +33,14 @@ public class Seeder {
     @Autowired
     private ConnectionFactory connectionFactory;
 
+    /*
+    somehow seed.sql can't work, will troubleshoot soon,
+    however init.sql already work
+     */
     @PostConstruct
     public void startInitalize(){
         if(this.connectionFactory instanceof PostgresqlConnectionFactory factory) {
-            Mono<PostgresqlConnection> monoConnection = this.createMysqlConnection(factory);
+            Mono<PostgresqlConnection> monoConnection = this.createPostgresqlConnection(factory);
             Flux<Integer> executeRes = monoConnection.flatMapMany((conn) -> {
                 Mono<Void> initTable = Mono
                         .from(ScriptUtils.executeSqlScript(conn, new ClassPathResource(SeedConstant.initFile)))
@@ -111,7 +112,7 @@ public class Seeder {
         }
     }
 
-    private Mono<PostgresqlConnection> createMysqlConnection(PostgresqlConnectionFactory factory){
+    private Mono<PostgresqlConnection> createPostgresqlConnection(PostgresqlConnectionFactory factory){
         return Mono.from(factory.create())
                 .doOnError((e) -> {
                     log.error("error occurred when create mysql connection with message {}", e.getMessage());

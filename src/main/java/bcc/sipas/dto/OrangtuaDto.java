@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDate;
+
 public class OrangtuaDto {
 
     public record Create(
@@ -34,6 +36,7 @@ public class OrangtuaDto {
                     .namaIbu(this.namaIbu)
                     .email(this.email)
                     .password(BcryptUtil.encode(this.password))
+                    .createdAt(LocalDate.now())
                     .build();
         }
     }

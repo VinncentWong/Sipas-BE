@@ -6,7 +6,6 @@ import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.EmailSudahAdaException;
 import bcc.sipas.util.ResponseUtil;
-import io.asyncer.r2dbc.mysql.MySqlConnectionFactory;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import java.time.LocalDate;
 public class OrangtuaService implements IOrangtuaService{
 
     @Autowired
-    private OrangtuaRepository orangtuaRepository;
+    private OrangtuaRepository repository;
 
     @Autowired
     private PostgresqlConnectionFactory factory;
@@ -33,14 +32,14 @@ public class OrangtuaService implements IOrangtuaService{
     public Mono<ResponseEntity<Response<Orangtua>>> create(OrangtuaDto.Create dto) {
         Orangtua orangtua = dto.toOrangtua();
         return Mono
-                .from(this.orangtuaRepository.findByEmail(orangtua.getEmail()))
+                .from(this.repository.findByEmail(orangtua.getEmail()))
                 .flatMap((o) -> {
                     if(o != null){
                         throw new EmailSudahAdaException("email sudah terdaftar");
                     }
                     return Mono.just(orangtua);
                 })
-                .then(this.executeCreate(orangtua))
+                .then(this.repository.save(orangtua))
                 .map((o) -> ResponseUtil.<Orangtua>sendResponse(
                             HttpStatus.CREATED,
                                 Response
