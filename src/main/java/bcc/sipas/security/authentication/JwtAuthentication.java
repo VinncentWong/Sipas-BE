@@ -2,15 +2,18 @@ package bcc.sipas.security.authentication;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-@Data
-public class JwtAuthentication<T> extends UsernamePasswordAuthenticationToken {
+@Setter
+@Getter
+public class JwtAuthentication<ID> extends UsernamePasswordAuthenticationToken {
 
-    private T id;
+    private ID id;
 
     public JwtAuthentication(Object principal, Object credentials) {
         super(principal, credentials);

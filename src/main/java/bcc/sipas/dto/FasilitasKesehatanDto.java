@@ -1,6 +1,6 @@
 package bcc.sipas.dto;
 
-import bcc.sipas.entity.Orangtua;
+import bcc.sipas.entity.FasilitasKesehatan;
 import bcc.sipas.util.BcryptUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -10,34 +10,41 @@ import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
-public class OrangtuaDto {
+public class FasilitasKesehatanDto {
 
     public record Create(
-            @NotNull(message = "nama ibu harus ada")
-            @NotBlank(message = "nama ibu tidak boleh kosong")
-            String namaIbu,
-
-            @NotNull(message = "nama ayah harus ada")
-            @NotBlank(message = "nama ayah tidak boleh kosong")
-            String namaAyah,
+            @NotNull(message = "nama faskes harus ada")
+            @NotBlank(message = "nama faskes tidak boleh kosong")
+            String namaFaskes,
 
             @Email
             @NotNull(message = "email harus ada")
             @NotBlank(message = "email tidak boleh kosong")
             String email,
 
+            @Length(min = 4, message = "panjang minimal password 4")
             @NotNull(message = "password harus ada")
             @NotBlank(message = "password tidak boleh kosong")
-            @Length(message = "panjang minimal 4", min = 4)
-            String password
+            String password,
+
+            @NotNull(message = "alamat faskes harus ada")
+            @NotBlank(message = "alamat faskes tidak boleh kosong")
+            String alamatFasilitas,
+
+            @NotNull(message = "nomor telepon harus ada")
+            @NotBlank(message = "nomor telepon tidak boleh kosong")
+            String nomorTelepon
     ){
-        public Orangtua toOrangtua(){
-            return Orangtua.builder()
-                    .namaAyah(this.namaAyah)
-                    .namaIbu(this.namaIbu)
+        public FasilitasKesehatan toFaskes(){
+            return FasilitasKesehatan
+                    .builder()
+                    .createdAt(LocalDate.now())
                     .email(this.email)
                     .password(BcryptUtil.encode(this.password))
-                    .createdAt(LocalDate.now())
+                    .username(this.namaFaskes)
+                    .nomorTelepon(this.nomorTelepon)
+                    .alamatFaskes(this.alamatFasilitas)
+                    .updatedAt(LocalDate.now())
                     .build();
         }
     }
@@ -50,13 +57,6 @@ public class OrangtuaDto {
 
             @NotNull(message = "password harus ada")
             @NotBlank(message = "password tidak boleh kosong")
-            @Length(message = "panjang minimal 4", min = 4)
             String password
-    ){}
-
-    public record ConnectFaskes(
-            @NotNull(message = "kode unik harus ada")
-            @NotBlank(message = "kode unik tidak boleh kosong")
-            String kodeUnik
     ){}
 }

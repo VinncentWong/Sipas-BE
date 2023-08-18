@@ -4,6 +4,7 @@ import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.EmailSudahAdaException;
 import bcc.sipas.exception.EmptyAuthorizationHeader;
+import bcc.sipas.exception.KredensialTidakValidException;
 import bcc.sipas.exception.UnauthorizedException;
 import bcc.sipas.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
@@ -76,6 +77,20 @@ public class Interceptor {
     public Mono<ResponseEntity<Response<Orangtua>>> handleException(EmailSudahAdaException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.CONFLICT,
+                        Response.<Orangtua>builder()
+                                .build()
+                                .putMessage(ex.getMessage())
+                                .putData(null)
+                                .putSuccess(false)
+                )
+        );
+    }
+
+    @ExceptionHandler(KredensialTidakValidException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Mono<ResponseEntity<Response<Orangtua>>> handleException(KredensialTidakValidException ex){
+        return Mono.fromCallable(() -> ResponseUtil.sendResponse(
+                        HttpStatus.UNAUTHORIZED,
                         Response.<Orangtua>builder()
                                 .build()
                                 .putMessage(ex.getMessage())

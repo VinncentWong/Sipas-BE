@@ -1,7 +1,9 @@
 package bcc.sipas.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
@@ -13,8 +15,10 @@ import java.util.List;
 @Builder
 @Setter
 @Getter
+@ToString
 public class Orangtua {
 
+    @Id
     private Long id;
 
     private String namaIbu;
@@ -28,9 +32,12 @@ public class Orangtua {
 
     private boolean isConnectedWithFaskes;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate createdAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate updatedAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate deletedAt;
 }

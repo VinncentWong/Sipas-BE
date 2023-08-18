@@ -14,7 +14,7 @@ import java.util.Map;
 @Getter
 @JsonIncludeProperties(
         {
-                "message", "data", "success"
+                "message", "data", "success", "jwtToken"
         }
 )
 public final class Response<T>{
@@ -22,6 +22,7 @@ public final class Response<T>{
     private String message;
     private T data;
     private boolean success;
+    private String jwtToken;
 
     public Response<T> putMessage(String message){
         this.message = message;

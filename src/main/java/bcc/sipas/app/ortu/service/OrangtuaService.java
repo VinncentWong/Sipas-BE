@@ -5,8 +5,11 @@ import bcc.sipas.dto.OrangtuaDto;
 import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.EmailSudahAdaException;
+import bcc.sipas.exception.KredensialTidakValidException;
+import bcc.sipas.security.authentication.JwtAuthentication;
+import bcc.sipas.util.BcryptUtil;
+import bcc.sipas.util.JwtUtil;
 import bcc.sipas.util.ResponseUtil;
-import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
+import java.time.Duration;
 
 @Service
 @Transactional
@@ -24,9 +27,6 @@ public class OrangtuaService implements IOrangtuaService{
 
     @Autowired
     private OrangtuaRepository repository;
-
-    @Autowired
-    private PostgresqlConnectionFactory factory;
 
     @Override
     public Mono<ResponseEntity<Response<Orangtua>>> create(OrangtuaDto.Create dto) {
@@ -55,24 +55,33 @@ public class OrangtuaService implements IOrangtuaService{
                 });
     }
 
-    private Mono<Orangtua> executeCreate(Orangtua orangtua){
-        orangtua.setCreatedAt(LocalDate.now());
-        return Mono.from(factory
-                .create()
-                .flatMapMany((c) -> c.createStatement(OrangtuaRepository.createSql)
-                        .bind("$1", orangtua.getNamaIbu())
-                        .bind("$2", orangtua.getNamaAyah())
-                        .bind("$3", orangtua.getEmail())
-                        .bind("$4", orangtua.getPassword())
-                        .bind("$5", orangtua.isConnectedWithFaskes())
-                        .bind("$6", orangtua.getCreatedAt())
-                        .returnGeneratedValues("id")
-                        .execute())
-                .flatMap((res) -> Mono.from(res.map((row, metadata) -> (Long)row.get("id"))))
-                .flatMap((res) -> {
-                    orangtua.setId(res);
-                    return Mono.just(orangtua);
-                })
-        );
+    @Override
+    public Mono<ResponseEntity<Response<Orangtua>>> login(OrangtuaDto.Login dto) {
+        return this.repository.findByEmail(dto.email())
+                .switchIfEmpty(Mono.error(new KredensialTidakValidException("kredensial tidak valid - email tidak ditemukan")))
+                .log()
+                .flatMap((o) -> {
+                    if (BcryptUtil.match(dto.password(), o.getPassword())){
+                        JwtAuthentication<Long> jwtAuthentication = new JwtAuthentication<>(String.format("%s-%s", o.getNamaAyah(), o.getNamaIbu()), o.getEmail());
+                        jwtAuthentication.setId(o.getId());
+                        String jwtToken = JwtUtil.generateToken(jwtAuthentication);
+                        return Mono.fromCallable(() -> ResponseUtil.sendResponse(
+                                HttpStatus.OK,
+                                Response.<Orangtua>builder()
+                                        .message("kredensial valid")
+                                        .data(o)
+                                        .success(true)
+                                        .jwtToken(jwtToken)
+                                        .build())
+                        );
+                    } else {
+                        return Mono.error(new KredensialTidakValidException("kredensial tidak valid"));
+                    }
+                });
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Orangtua>>> connectFaskes(OrangtuaDto.ConnectFaskes dto) {
+        return null;
     }
 }

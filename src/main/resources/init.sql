@@ -133,6 +133,8 @@ CREATE TABLE IF NOT EXISTS "fasilitas_kesehatan"(
     password VARCHAR(255) NOT NULL DEFAULT '',
     username VARCHAR(255) NOT NULL DEFAULT '',
     kode_unik VARCHAR(255) NOT NULL DEFAULT '',
+    nomor_telepon VARCHAR(255) NOT NULL DEFAULT '',
+    alamat_faskes VARCHAR(255) NOT NULL DEFAULT '',
 
     -- Helper
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

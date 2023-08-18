@@ -1,8 +1,8 @@
-package bcc.sipas.app.ortu.controller;
+package bcc.sipas.app.faskes.controller;
 
-import bcc.sipas.app.ortu.service.IOrangtuaService;
-import bcc.sipas.dto.OrangtuaDto;
-import bcc.sipas.entity.Orangtua;
+import bcc.sipas.app.faskes.service.IFasilitasKesehatanService;
+import bcc.sipas.dto.FasilitasKesehatanDto;
+import bcc.sipas.entity.FasilitasKesehatan;
 import bcc.sipas.entity.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,49 +24,51 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/orangtua")
-@Tag(name = "Orangtua")
-public class OrangtuaController {
+@RequestMapping("/faskes")
+@Tag(name = "Fasilitas Kesehatan")
+public class FasilitasKesehatanController {
 
     @Autowired
-    private IOrangtuaService orangtuaService;
+    private IFasilitasKesehatanService service;
 
-    @Operation(description = "membuat data orangtua")
+    @Operation(description = "membuat fasilitas kesehatan")
     @ApiResponses({
             @ApiResponse(
-                    description = "sukses membuat orangtua",
+                    description = "sukses membuat fasilitas kesehatan",
                     useReturnTypeSchema = true,
                     responseCode = "201"
             )
     })
     @PostMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    public Mono<ResponseEntity<Response<Orangtua>>> create(
+    public Mono<ResponseEntity<Response<FasilitasKesehatan>>> create(
             @Valid
             @RequestBody
-            OrangtuaDto.Create dto){
-        return this.orangtuaService.create(dto);
+            FasilitasKesehatanDto.Create dto
+    ){
+        return this.service.create(dto);
     }
 
-    @Operation(description = "orangtua login")
+    @Operation(description = "login fasilitas kesehatan")
     @ApiResponses({
             @ApiResponse(
-                    description = "sukses login orangtua",
+                    description = "sukses membuat fasilitas kesehatan",
                     useReturnTypeSchema = true,
                     responseCode = "200"
             )
     })
     @PostMapping(
             value = "/login",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    public Mono<ResponseEntity<Response<Orangtua>>> login(
+    public Mono<ResponseEntity<Response<FasilitasKesehatan>>> login(
             @Valid
             @RequestBody
-            OrangtuaDto.Login dto){
-        return this.orangtuaService.login(dto);
+            FasilitasKesehatanDto.Login dto
+    ){
+        return this.service.login(dto);
     }
 }
