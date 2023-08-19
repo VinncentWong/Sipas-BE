@@ -3,6 +3,7 @@ package bcc.sipas.app.ortu.repository;
 import bcc.sipas.entity.Orangtua;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +20,7 @@ public class OrangtuaRepository {
 
     public Mono<Orangtua> save(Orangtua orangtua){
         orangtua.setCreatedAt(LocalDate.now());
+        orangtua.setIsConnectedWithFaskes(false);
         return Mono.from(factory
                 .create()
                 .flatMapMany((c) -> c.createStatement(IOrangtuaRepository.createSql)
@@ -26,7 +28,7 @@ public class OrangtuaRepository {
                         .bind("$2", orangtua.getNamaAyah())
                         .bind("$3", orangtua.getEmail())
                         .bind("$4", orangtua.getPassword())
-                        .bind("$5", orangtua.isConnectedWithFaskes())
+                        .bind("$5", orangtua.getIsConnectedWithFaskes())
                         .bind("$6", orangtua.getCreatedAt())
                         .returnGeneratedValues("id")
                         .execute())
@@ -40,5 +42,18 @@ public class OrangtuaRepository {
 
     public Mono<Orangtua> findByEmail(String email){
         return this.repository.findByEmail(email);
+    }
+
+    public Mono<Orangtua> findOne(Example<Orangtua> example){
+        return this.repository.findOne(example);
+    }
+
+    public Mono<Orangtua> findById(Long id){
+        return this.repository.findById(id);
+    }
+
+    public Mono<Orangtua> update(Orangtua orangtua){
+        return this.repository
+                .save(orangtua);
     }
 }

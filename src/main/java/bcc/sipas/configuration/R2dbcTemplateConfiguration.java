@@ -9,7 +9,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
 @Configuration
 @Import(PostgreSQLConnectionFactoryConfiguration.class)
-public class R2dbcTemplateConfiguration {
+class R2dbcTemplateConfiguration {
 
     @Autowired
     private PostgresqlConnectionFactory connectionFactory;

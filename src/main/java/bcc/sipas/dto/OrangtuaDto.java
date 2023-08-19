@@ -1,5 +1,6 @@
 package bcc.sipas.dto;
 
+import bcc.sipas.entity.FasilitasKesehatan;
 import bcc.sipas.entity.Orangtua;
 import bcc.sipas.util.BcryptUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,6 +39,7 @@ public class OrangtuaDto {
                     .email(this.email)
                     .password(BcryptUtil.encode(this.password))
                     .createdAt(LocalDate.now())
+                    .updatedAt(LocalDate.now())
                     .build();
         }
     }
@@ -52,11 +54,5 @@ public class OrangtuaDto {
             @NotBlank(message = "password tidak boleh kosong")
             @Length(message = "panjang minimal 4", min = 4)
             String password
-    ){}
-
-    public record ConnectFaskes(
-            @NotNull(message = "kode unik harus ada")
-            @NotBlank(message = "kode unik tidak boleh kosong")
-            String kodeUnik
     ){}
 }

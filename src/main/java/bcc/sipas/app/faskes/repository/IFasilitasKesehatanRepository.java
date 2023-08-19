@@ -3,11 +3,12 @@ package bcc.sipas.app.faskes.repository;
 import bcc.sipas.entity.FasilitasKesehatan;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-interface IFasilitasKesehatanRepository extends R2dbcRepository<FasilitasKesehatan, Long> {
+interface IFasilitasKesehatanRepository extends R2dbcRepository<FasilitasKesehatan, Long>{
 
     String createSql = """
             INSERT INTO fasilitas_kesehatan(email, password, username, kode_unik, nomor_telepon, alamat_faskes, created_at, updated_at) 

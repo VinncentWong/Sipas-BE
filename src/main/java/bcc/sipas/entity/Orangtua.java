@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
@@ -30,7 +31,8 @@ public class Orangtua {
     @JsonIgnore
     private String password;
 
-    private boolean isConnectedWithFaskes;
+    @Column("is_connect_faskes")
+    private Boolean isConnectedWithFaskes;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate createdAt;

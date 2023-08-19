@@ -1,6 +1,8 @@
 package bcc.sipas.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -15,18 +17,23 @@ import java.time.LocalDate;
 @Builder
 public class DataKehamilan {
 
+    @Id
     private Long id;
 
-    private JenisKelamin namaCalonBayi;
+    private String namaCalonBayi;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate tanggalPertamaHaid;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate createdAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate updatedAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate deletedAt;
 
     @Column("fk_ortu_id")
-    private Orangtua orangtua;
+    private Long fkOrtuId;
 }

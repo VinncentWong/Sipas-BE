@@ -1,5 +1,6 @@
 package bcc.sipas.app.ortu.service;
 
+import bcc.sipas.app.faskes.repository.FasilitasKesehatanRepository;
 import bcc.sipas.app.ortu.repository.OrangtuaRepository;
 import bcc.sipas.dto.OrangtuaDto;
 import bcc.sipas.entity.Orangtua;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 
 @Service
 @Transactional
@@ -28,6 +28,9 @@ public class OrangtuaService implements IOrangtuaService{
     @Autowired
     private OrangtuaRepository repository;
 
+    @Autowired
+    private FasilitasKesehatanRepository faskesRepository;
+
     @Override
     public Mono<ResponseEntity<Response<Orangtua>>> create(OrangtuaDto.Create dto) {
         Orangtua orangtua = dto.toOrangtua();
@@ -35,7 +38,7 @@ public class OrangtuaService implements IOrangtuaService{
                 .from(this.repository.findByEmail(orangtua.getEmail()))
                 .flatMap((o) -> {
                     if(o != null){
-                        throw new EmailSudahAdaException("email sudah terdaftar");
+                        return Mono.error(new EmailSudahAdaException("email sudah terdaftar"));
                     }
                     return Mono.just(orangtua);
                 })
@@ -61,10 +64,10 @@ public class OrangtuaService implements IOrangtuaService{
                 .switchIfEmpty(Mono.error(new KredensialTidakValidException("kredensial tidak valid - email tidak ditemukan")))
                 .log()
                 .flatMap((o) -> {
-                    if (BcryptUtil.match(dto.password(), o.getPassword())){
+                    if (BcryptUtil.match(dto.password(), o.getPassword())) {
                         JwtAuthentication<Long> jwtAuthentication = new JwtAuthentication<>(String.format("%s-%s", o.getNamaAyah(), o.getNamaIbu()), o.getEmail());
                         jwtAuthentication.setId(o.getId());
-                        String jwtToken = JwtUtil.generateToken(jwtAuthentication);
+                        String jwtToken = JwtUtil.generateToken(jwtAuthentication, "ROLE_ORANGTUA");
                         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                                 HttpStatus.OK,
                                 Response.<Orangtua>builder()
@@ -78,10 +81,5 @@ public class OrangtuaService implements IOrangtuaService{
                         return Mono.error(new KredensialTidakValidException("kredensial tidak valid"));
                     }
                 });
-    }
-
-    @Override
-    public Mono<ResponseEntity<Response<Orangtua>>> connectFaskes(OrangtuaDto.ConnectFaskes dto) {
-        return null;
     }
 }

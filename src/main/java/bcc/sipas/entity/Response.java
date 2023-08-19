@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,17 +13,13 @@ import java.util.Map;
 @Builder
 @Setter
 @Getter
-@JsonIncludeProperties(
-        {
-                "message", "data", "success", "jwtToken"
-        }
-)
 public final class Response<T>{
 
     private String message;
     private T data;
     private boolean success;
     private String jwtToken;
+    private PaginationResult<T> pagination;
 
     public Response<T> putMessage(String message){
         this.message = message;

@@ -1,3 +1,16 @@
+-- Custom Type
+
+DROP TYPE IF EXISTS e_status_kehamilan;
+DROP TYPE IF EXISTS e_kondisi_lahir;
+DROP TYPE IF EXISTS e_status_ajuan;
+DROP TYPE IF EXISTS e_jenis_kelamin;
+
+
+CREATE TYPE e_jenis_kelamin AS enum('laki', 'perempuan', '');
+CREATE TYPE e_kondisi_lahir AS enum('prematur', 'sehat', 'lainnya', '');
+CREATE TYPE e_status_ajuan AS enum('gagal', 'diproses', 'sukses', '');
+CREATE TYPE e_status_kehamilan AS enum('baik', 'lemah', 'beresiko', '');
+
 DROP TABLE IF EXISTS "orang_tua";
 CREATE TABLE IF NOT EXISTS "orang_tua"(
     id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -31,8 +44,8 @@ CREATE TABLE IF NOT EXISTS "data_anak"(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     nama_anak VARCHAR(255) NOT NULL DEFAULT '',
     tanggal_lahir_anak DATE,
-    jenis_kelamin SMALLINT NOT NULL DEFAULT 0,
-    kondisi_lahir SMALLINT NOT NULL DEFAULT 0,
+    jenis_kelamin e_jenis_kelamin NOT NULL DEFAULT '',
+    kondisi_lahir e_kondisi_lahir NOT NULL DEFAULT '',
     berat_badan_lahir FLOAT NOT NULL DEFAULT 0,
     panjang_badan_lahir FLOAT NOT NULL DEFAULT 0,
     lingkar_kepala FLOAT NOT NULL DEFAULT 0,
@@ -58,10 +71,10 @@ CREATE TABLE IF NOT EXISTS "orang_tua_faskes"(
 
 DROP TABLE IF EXISTS "ajukan_bantuan";
 CREATE TABLE IF NOT EXISTS "ajukan_bantuan"(
-   id BIGSERIAL NOT NULL PRIMARY KEY,
+    id BIGSERIAL NOT NULL PRIMARY KEY,
     judul VARCHAR(255) NOT NULL DEFAULT '',
     deskripsi VARCHAR(255) NOT NULL DEFAULT '',
-    status VARCHAR(255) NOT NULL DEFAULT '',
+    status e_status_ajuan NOT NULL DEFAULT '',
     pesan_tambahan VARCHAR(255) NOT NULL DEFAULT '',
     fk_ortu_id BIGINT NOT NULL,
     fk_faskes_id BIGINT NOT NULL,
@@ -81,7 +94,7 @@ CREATE TABLE IF NOT EXISTS "data_pemeriksaan_kehamilan"(
     usia_kandungan INT NOT NULL DEFAULT 0,
     tekanan_darah VARCHAR(255) NOT NULL DEFAULT '',
     berat_badan_ibu FLOAT NOT NULL DEFAULT 0,
-    status_kehamilan SMALLINT NOT NULL DEFAULT 0,
+    status_kehamilan e_status_kehamilan NOT NULL DEFAULT '',
     pesan_tambahan VARCHAR(255) NOT NULL DEFAULT '',
     fk_ortu_id BIGINT NOT NULL,
     fk_faskes_id BIGINT NOT NULL,

@@ -56,7 +56,7 @@ public class FasilitasKesehatanService implements IFasilitasKesehatanService {
                             if(BcryptUtil.match(dto.password(), f.getPassword())){
                                 JwtAuthentication<Long> jwtAuthentication = new JwtAuthentication<>(f.getUsername(), f.getEmail());
                                 jwtAuthentication.setId(f.getId());
-                                String token = JwtUtil.generateToken(jwtAuthentication);
+                                String token = JwtUtil.generateToken(jwtAuthentication, "ROLE_FASKES");
                                 return Mono.fromCallable(() -> ResponseUtil.<FasilitasKesehatan>sendResponse(
                                         HttpStatus.CREATED,
                                         Response

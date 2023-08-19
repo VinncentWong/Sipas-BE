@@ -1,5 +1,5 @@
 package bcc.sipas.entity;
 
 public enum StatusKehamilan {
-    Baik, Lemah, Beresiko
+    baik, lemah, beresiko
 }

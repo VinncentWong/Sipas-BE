@@ -2,10 +2,7 @@ package bcc.sipas.interceptor;
 
 import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
-import bcc.sipas.exception.EmailSudahAdaException;
-import bcc.sipas.exception.EmptyAuthorizationHeader;
-import bcc.sipas.exception.KredensialTidakValidException;
-import bcc.sipas.exception.UnauthorizedException;
+import bcc.sipas.exception.*;
 import bcc.sipas.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,6 +88,34 @@ public class Interceptor {
     public Mono<ResponseEntity<Response<Orangtua>>> handleException(KredensialTidakValidException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.UNAUTHORIZED,
+                        Response.<Orangtua>builder()
+                                .build()
+                                .putMessage(ex.getMessage())
+                                .putData(null)
+                                .putSuccess(false)
+                )
+        );
+    }
+
+    @ExceptionHandler(DataTidakDitemukanException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Mono<ResponseEntity<Response<Orangtua>>> handleException(DataTidakDitemukanException ex){
+        return Mono.fromCallable(() -> ResponseUtil.sendResponse(
+                        HttpStatus.NOT_FOUND,
+                        Response.<Orangtua>builder()
+                                .build()
+                                .putMessage(ex.getMessage())
+                                .putData(null)
+                                .putSuccess(false)
+                )
+        );
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Mono<ResponseEntity<Response<Orangtua>>> handleException(ForbiddenException ex){
+        return Mono.fromCallable(() -> ResponseUtil.sendResponse(
+                        HttpStatus.FORBIDDEN,
                         Response.<Orangtua>builder()
                                 .build()
                                 .putMessage(ex.getMessage())

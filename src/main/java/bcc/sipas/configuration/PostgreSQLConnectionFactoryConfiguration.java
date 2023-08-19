@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 
 @Configuration
-public class PostgreSQLConnectionFactoryConfiguration {
+class PostgreSQLConnectionFactoryConfiguration {
 
     @Value("${db.r2dbc.username}")
     private String username;

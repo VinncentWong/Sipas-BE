@@ -24,17 +24,14 @@ public final class JwtUtil {
 
     private static final Key keys = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public static String generateToken(JwtAuthentication<?> authentication){
+    public static String generateToken(JwtAuthentication<?> authentication, String... role){
         String username = authentication.getName();
         Object id = authentication.getId();
-        Optional<GrantedAuthority> role = authentication.getAuthorities()
-                .stream()
-                .findFirst();
         Claims claims = Jwts
                 .claims()
                 .setSubject(username)
                 .setId(id.toString());
-        role.ifPresent((v) ->  claims.put(SecurityConstant.ROLE, v));
+        claims.put(SecurityConstant.ROLE, role[0]);
         LocalDate now = LocalDate.now();
         return Jwts.builder()
                 .addClaims(claims)
