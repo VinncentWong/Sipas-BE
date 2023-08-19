@@ -52,9 +52,6 @@ public class DataAnakService implements IDataAnakService{
                     }
                 })
                 .then(this.repository.save(dataAnak))
-                .doOnError((e) -> {
-                    log.error("error occurred with message {}", e.getMessage());
-                })
                 .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil
                         .sendResponse(HttpStatus.CREATED,
                                 Response

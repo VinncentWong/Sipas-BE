@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @Builder
+@ToString
 public class DataAnak {
 
     @Id
@@ -23,6 +24,7 @@ public class DataAnak {
 
     private String jenisKelamin;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column("tanggal_lahir_anak")
     private LocalDate tanggalLahir;
 
