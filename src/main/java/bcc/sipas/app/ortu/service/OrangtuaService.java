@@ -5,6 +5,7 @@ import bcc.sipas.app.ortu.repository.OrangtuaRepository;
 import bcc.sipas.dto.OrangtuaDto;
 import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.EmailSudahAdaException;
 import bcc.sipas.exception.KredensialTidakValidException;
 import bcc.sipas.security.authentication.JwtAuthentication;
@@ -82,4 +83,25 @@ public class OrangtuaService implements IOrangtuaService{
                     }
                 });
     }
+
+    @Override
+    public Mono<ResponseEntity<Response<Orangtua>>> get(Long id) {
+        return this.repository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")))
+                .flatMap((d) -> Mono.fromCallable(() ->
+                    ResponseUtil
+                            .sendResponse(
+                                    HttpStatus.OK,
+                                    Response
+                                            .<Orangtua>builder()
+                                            .data(d)
+                                            .success(true)
+                                            .message("sukses menemukan data orangtua")
+                                            .build()
+                            )
+                ));
+    }
+
+
 }

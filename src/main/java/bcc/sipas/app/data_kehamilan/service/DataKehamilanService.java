@@ -65,4 +65,25 @@ public class DataKehamilanService implements IDataKehamilanService{
                         ))
                 );
     }
+
+    @Override
+    public Mono<ResponseEntity<Response<DataKehamilan>>> get(Long id) {
+        return this.repository
+                .find(Example
+                        .of(DataKehamilan
+                                .builder()
+                                .fkOrtuId(id)
+                                .build())
+                )
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data kehamilan tidak ditemukan")))
+                .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil
+                        .sendResponse(HttpStatus.OK,
+                                Response
+                                        .<DataKehamilan>builder()
+                                        .data(d)
+                                        .success(true)
+                                        .message("sukses mendapatkan data kehamilan")
+                                        .build()))
+                );
+    }
 }

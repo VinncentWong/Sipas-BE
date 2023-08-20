@@ -28,7 +28,6 @@ public class SecurityConfiguration {
 
 
     String[] authPost = {
-            // orangtua
             "/ortu/**",
             "/kehamilan/**",
             "/anak/**"
@@ -36,6 +35,7 @@ public class SecurityConfiguration {
 
     String[] authGet = {
             "/ortu/**",
+            "/orangtua/{id}"
     };
 
     @Bean
@@ -81,8 +81,8 @@ public class SecurityConfiguration {
                 .authorizeExchange((it) -> {
                     it.pathMatchers(HttpMethod.POST, this.authPost)
                             .authenticated()
-//                            .pathMatchers(HttpMethod.GET, this.authGet)
-//                            .authenticated()
+                            .pathMatchers(HttpMethod.GET, this.authGet)
+                            .authenticated()
                             .anyExchange()
                             .permitAll();
                 })

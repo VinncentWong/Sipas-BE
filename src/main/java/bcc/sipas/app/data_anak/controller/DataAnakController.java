@@ -7,6 +7,8 @@ import bcc.sipas.entity.Response;
 import bcc.sipas.security.authentication.JwtAuthentication;
 import bcc.sipas.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,15 +20,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @Tag(name = "Data Anak")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasRole('ORANGTUA')")
+@PreAuthorize("hasAnyRole('ORANGTUA', 'FASKES')")
 @RestController
 @RequestMapping("/anak")
 @Slf4j
@@ -56,5 +55,26 @@ public class DataAnakController {
             JwtAuthentication<String> jwtAuthentication
             ){
         return this.service.create(Long.parseLong(jwtAuthentication.getId()), dto);
+    }
+
+    @Operation(description = "mendapatkan data anak")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan data anak",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @Parameter(name = "id", in = ParameterIn.PATH, required = true)
+    @GetMapping(
+            value = "/{id}",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<DataAnak>>> get(
+            @PathVariable("id") Long id
+    ){
+        return this.service.get(id);
     }
 }

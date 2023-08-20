@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono;
 public interface IOrangtuaService {
      Mono<ResponseEntity<Response<Orangtua>>> create(OrangtuaDto.Create dto);
      Mono<ResponseEntity<Response<Orangtua>>> login(OrangtuaDto.Login dto);
+     Mono<ResponseEntity<Response<Orangtua>>> get(Long id);
 }

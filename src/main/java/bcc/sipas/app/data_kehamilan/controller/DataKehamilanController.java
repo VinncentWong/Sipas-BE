@@ -17,17 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
 @Tag(name = "Data Kehamilan")
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/kehamilan")
-@PreAuthorize("hasRole('ORANGTUA')")
+@PreAuthorize("hasAnyRole('ORANGTUA', 'FASKES')")
 public class DataKehamilanController {
 
     @Autowired
@@ -54,5 +51,26 @@ public class DataKehamilanController {
             JwtAuthentication<String> jwtAuthentication
     ){
         return this.service.create(Long.parseLong(jwtAuthentication.getId()), dto);
+    }
+
+    @Operation(description = "mendapatkan data kehamilan")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan data kehamilan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @Parameter(name = "id", in = ParameterIn.PATH, required = true)
+    @GetMapping(
+            value = "/{id}",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<DataKehamilan>>> get(
+            @PathVariable("id") Long id
+    ){
+        return this.service.get(id);
     }
 }

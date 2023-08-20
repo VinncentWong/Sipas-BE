@@ -63,4 +63,26 @@ public class DataAnakService implements IDataAnakService{
                         ))
                 );
     }
+
+    @Override
+    public Mono<ResponseEntity<Response<DataAnak>>> get(Long id) {
+        return this.repository
+                .get(Example.of(DataAnak
+                        .builder()
+                        .fkOrtuId(id)
+                        .build())
+                )
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
+                .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil
+                        .sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<DataAnak>builder()
+                                        .message("sukses menemukan data anak")
+                                        .data(d)
+                                        .success(true)
+                                        .build()
+                        ))
+                );
+    }
 }

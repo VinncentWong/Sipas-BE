@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono;
 public interface IDataKehamilanService {
 
     Mono<ResponseEntity<Response<DataKehamilan>>> create(Long id, DataKehamilanDto.Create dto);
+    Mono<ResponseEntity<Response<DataKehamilan>>> get(Long id);
 }

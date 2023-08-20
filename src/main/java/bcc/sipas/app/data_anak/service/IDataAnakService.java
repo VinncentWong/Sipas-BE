@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono;
 public interface IDataAnakService {
 
     Mono<ResponseEntity<Response<DataAnak>>> create(Long id, DataAnakDto.Create dto);
+    Mono<ResponseEntity<Response<DataAnak>>> get(Long id);
 }
