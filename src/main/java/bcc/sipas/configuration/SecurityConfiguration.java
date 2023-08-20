@@ -35,7 +35,8 @@ public class SecurityConfiguration {
 
     String[] authGet = {
             "/ortu/**",
-            "/orangtua/{id}"
+            "/orangtua/{id}",
+            "/anak",
     };
 
     @Bean

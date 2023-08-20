@@ -5,6 +5,7 @@ import bcc.sipas.app.ortu.repository.OrangtuaRepository;
 import bcc.sipas.dto.DataAnakDto;
 import bcc.sipas.entity.DataAnak;
 import bcc.sipas.entity.Orangtua;
+import bcc.sipas.entity.PaginationResult;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
@@ -12,11 +13,14 @@ import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -65,24 +69,32 @@ public class DataAnakService implements IDataAnakService{
     }
 
     @Override
-    public Mono<ResponseEntity<Response<DataAnak>>> get(Long id) {
+    public Mono<ResponseEntity<Response<List<DataAnak>>>> getList(Long id, Pageable pageable) {
         return this.repository
-                .get(Example.of(DataAnak
-                        .builder()
-                        .fkOrtuId(id)
-                        .build())
-                )
+                .getList(id, pageable)
                 .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
-                .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil
-                        .sendResponse(
-                                HttpStatus.OK,
-                                Response
-                                        .<DataAnak>builder()
-                                        .message("sukses menemukan data anak")
-                                        .data(d)
-                                        .success(true)
-                                        .build()
-                        ))
+                .flatMap((d) ->
+                    Mono.fromCallable(() -> ResponseUtil
+                           .sendResponse(
+                                   HttpStatus.OK,
+                                   Response
+                                           .<List<DataAnak>>builder()
+                                           .message("sukses menemukan data anak")
+                                           .data(d.getContent())
+                                           .pagination(
+                                                   PaginationResult
+                                                           .<List<DataAnak>>builder()
+                                                           .totalPage(d.getTotalPages())
+                                                           .currentPage(pageable.getPageNumber())
+                                                           .currentElement(d.getContent().size())
+                                                           .totalElement(d.getTotalElements())
+                                                           .build()
+                                           )
+                                           .success(true)
+                                           .build()
+                           )
+                   )
                 );
     }
+
 }

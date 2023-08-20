@@ -63,7 +63,7 @@ public class OrangtuaFaskesController {
     @GetMapping("/faskes")
     public Mono<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(value = "limit", required = false, defaultValue = "0") int limit,
+            @RequestParam(value = "limit", required = false, defaultValue = "10") int limit,
             JwtAuthentication<String> jwtAuthentication
     ){
         return Mono.from(this.service.getList(Long.parseLong(jwtAuthentication.getId()), PageRequest.of(page, limit)));
