@@ -143,3 +143,5 @@ CREATE TABLE IF NOT EXISTS "fasilitas_kesehatan"(
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+DROP TABLE IF EXISTS "hasil"

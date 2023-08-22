@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2023-08-20T14:27:54.768Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="MiX06YekDyUvqcM8Cvy8" version="21.6.8" type="device">
+<mxfile host="Electron" modified="2023-08-20T14:29:16.946Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="Fjqj76Xlq2ndicVxqgUM" version="21.6.8" type="device">
   <diagram name="Page-1" id="caE8YOga5Qmc2Op36gIU">
-    <mxGraphModel dx="2107" dy="643" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2023" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -503,7 +503,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="F6uKXj_DnGZZVgqwRHSC-155" value="GrupWhatsapp" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;" parent="1" vertex="1">
-          <mxGeometry x="490" y="1060" width="180" height="180" as="geometry" />
+          <mxGeometry x="520" y="640" width="180" height="180" as="geometry" />
         </mxCell>
         <mxCell id="F6uKXj_DnGZZVgqwRHSC-156" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" parent="F6uKXj_DnGZZVgqwRHSC-155" vertex="1">
           <mxGeometry y="30" width="180" height="30" as="geometry" />
@@ -571,7 +571,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="F6uKXj_DnGZZVgqwRHSC-171" value="ResepMakanan" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;" parent="1" vertex="1">
-          <mxGeometry x="490" y="1290" width="180" height="390" as="geometry" />
+          <mxGeometry x="530" y="960" width="180" height="390" as="geometry" />
         </mxCell>
         <mxCell id="F6uKXj_DnGZZVgqwRHSC-172" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" parent="F6uKXj_DnGZZVgqwRHSC-171" vertex="1">
           <mxGeometry y="30" width="180" height="30" as="geometry" />
@@ -925,13 +925,13 @@
             <mxPoint x="160" y="910" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ei2uh5svU_YJMvgXhQEh-48" value="" style="edgeStyle=orthogonalEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="F6uKXj_DnGZZVgqwRHSC-87" target="F6uKXj_DnGZZVgqwRHSC-184">
+        <mxCell id="ei2uh5svU_YJMvgXhQEh-48" value="" style="edgeStyle=orthogonalEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="F6uKXj_DnGZZVgqwRHSC-87" target="F6uKXj_DnGZZVgqwRHSC-178">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="280" y="1160" as="sourcePoint" />
             <mxPoint x="380" y="1060" as="targetPoint" />
             <Array as="points">
               <mxPoint x="410" y="955" />
-              <mxPoint x="410" y="1455" />
+              <mxPoint x="410" y="1060" />
             </Array>
           </mxGeometry>
         </mxCell>

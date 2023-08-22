@@ -8,13 +8,13 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Table("data_pemeriksaan_kehamilan")
+@Table("data_pemeriksaan_anak")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-public class DataPemeriksaanKehamilan {
+public class DataPemeriksaanAnak {
 
     @Id
     private Long id;
@@ -26,18 +26,15 @@ public class DataPemeriksaanKehamilan {
 
     private String namaPemeriksa;
 
-    private Integer usiaKandungan;
+    private Integer umurAnak;
 
-    private String tekananDarah;
+    private Double tinggiAnak;
 
-    private Double beratBadanIbu;
+    private Double beratBadanAnak;
 
-    private String statusKehamilan;
+    private StatusAnak statusAnak;
 
     private String pesanTambahan;
-
-    @Column("fk_ortu_id")
-    private Long fkOrtuId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate createdAt;
@@ -50,4 +47,7 @@ public class DataPemeriksaanKehamilan {
 
     @Column("fk_faskes_id")
     private Long fkFaskesId;
+
+    @Column("fk_ortu_id")
+    private Long fkOrtuId;
 }
