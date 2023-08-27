@@ -12,16 +12,19 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Tag(name = "Pemeriksaan Kehamilan")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/hasil/pemeriksaan")
+@RequestMapping("/pemeriksaan/kehamilan")
 @PreAuthorize("hasRole('FASKES')")
 public class PemeriksaanKehamilanController {
 
@@ -29,7 +32,8 @@ public class PemeriksaanKehamilanController {
     private IPemeriksaanKehamilanService service;
 
     @Operation(summary = "membuat data pemeriksaan kehamilan")
-    @Parameter(name = "id", in = ParameterIn.PATH, required = true, description = "orangtua id")
+    @Parameter(name = "id", in = ParameterIn.QUERY, required = true, description = "orangtua id")
+    @Parameter(name = "data_kehamilan_id", in = ParameterIn.QUERY, required = true, description = "data kehamilan id")
     @PostMapping(
             value = "/{id}",
             consumes = {
@@ -40,10 +44,31 @@ public class PemeriksaanKehamilanController {
             }
     )
     public Mono<ResponseEntity<Response<DataPemeriksaanKehamilan>>> create(
-            @PathVariable("id") Long id,
+            @RequestParam("id") Long id,
+            @RequestParam("data_kehamilan_id") Long dataKehamilanId,
             @Valid @RequestBody DataPemeriksaanKehamilanDto.Create dto,
             JwtAuthentication<String> jwtAuth
             ){
-        return this.service.create(id, Long.parseLong(jwtAuth.getId()), dto);
+        return this.service.create(id, Long.parseLong(jwtAuth.getId()), dataKehamilanId, dto);
+    }
+
+    @Operation(summary = "mendapatkan data pemeriksaan kehamilan")
+    @Parameter(name = "id", in = ParameterIn.QUERY, required = true, description = "orangtua id")
+    @Parameter(name = "data_kehamilan_id", in = ParameterIn.QUERY, required = true, description = "data kehamilan id")
+    @Parameter(name = "page", in = ParameterIn.QUERY, description = "page")
+    @Parameter(name = "limit", in = ParameterIn.QUERY, description = "limit")
+    @GetMapping(
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<DataPemeriksaanKehamilan>>>> getList(
+            @RequestParam("id") Long id,
+            @RequestParam("data_kehamilan_id") Long dataKehamilanId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            JwtAuthentication<String> jwtAuth
+    ){
+        return this.service.getList(id, Long.parseLong(jwtAuth.getId()), dataKehamilanId, PageRequest.of(page, limit));
     }
 }

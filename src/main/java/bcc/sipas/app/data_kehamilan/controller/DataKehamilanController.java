@@ -61,7 +61,7 @@ public class DataKehamilanController {
                     responseCode = "200"
             )
     })
-    @Parameter(name = "id", in = ParameterIn.PATH, required = true)
+    @Parameter(name = "id", in = ParameterIn.PATH, required = true, description = "data kehamilan id")
     @GetMapping(
             value = "/{id}",
             produces = {

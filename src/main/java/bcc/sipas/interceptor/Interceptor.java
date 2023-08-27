@@ -98,10 +98,10 @@ public class Interceptor {
     }
 
     @ExceptionHandler(DataTidakDitemukanException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<Response<Orangtua>>> handleException(DataTidakDitemukanException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
-                        HttpStatus.NOT_FOUND,
+                        HttpStatus.OK,
                         Response.<Orangtua>builder()
                                 .build()
                                 .putMessage(ex.getMessage())

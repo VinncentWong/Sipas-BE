@@ -72,7 +72,7 @@ public class DataKehamilanService implements IDataKehamilanService{
                 .find(Example
                         .of(DataKehamilan
                                 .builder()
-                                .fkOrtuId(id)
+                                .id(id)
                                 .build())
                 )
                 .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data kehamilan tidak ditemukan")))

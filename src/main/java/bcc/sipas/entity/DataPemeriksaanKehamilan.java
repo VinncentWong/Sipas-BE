@@ -50,4 +50,7 @@ public class DataPemeriksaanKehamilan {
 
     @Column("fk_faskes_id")
     private Long fkFaskesId;
+
+    @Column("fk_data_kehamilan")
+    private Long fkDataKehamilan;
 }

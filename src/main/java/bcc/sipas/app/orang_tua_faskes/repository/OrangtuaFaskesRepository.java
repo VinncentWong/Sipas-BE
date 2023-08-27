@@ -1,12 +1,9 @@
 package bcc.sipas.app.orang_tua_faskes.repository;
 
-import bcc.sipas.entity.FasilitasKesehatan;
-import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.OrangtuaFaskes;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

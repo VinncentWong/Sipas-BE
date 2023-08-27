@@ -144,4 +144,26 @@ CREATE TABLE IF NOT EXISTS "fasilitas_kesehatan"(
     deleted_at TIMESTAMP
 );
 
-DROP TABLE IF EXISTS "hasil"
+ALTER TABLE data_pemeriksaan_kehamilan
+ADD COLUMN fk_data_kehamilan INT;
+
+DROP TABLE IF EXISTS "data_pemeriksaan_anak";
+CREATE TABLE IF NOT EXISTS "data_pemeriksaan_anak"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    tanggal_pemeriksaan TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tempat_pemeriksaan VARCHAR(255) NOT NULL DEFAULT '',
+    nama_pemeriksa VARCHAR(255) NOT NULL DEFAULT '',
+    umur_anak INT NOT NULL DEFAULT 0.0,
+    tinggi_anak FLOAT NOT NULL DEFAULT 0.0,
+    berat_badan_anak FLOAT NOT NULL DEFAULT 0.0,
+    status_anak VARCHAR(255) NOT NULL DEFAULT '',
+    pesan_tambahan VARCHAR(500) NOT NULL DEFAULT '',
+    fk_ortu_id INT,
+    fk_faskes_id INT,
+    fk_data_anak INT,
+
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);

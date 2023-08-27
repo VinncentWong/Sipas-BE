@@ -32,7 +32,7 @@ public class DataPemeriksaanAnak {
 
     private Double beratBadanAnak;
 
-    private StatusAnak statusAnak;
+    private String statusAnak;
 
     private String pesanTambahan;
 
@@ -50,4 +50,7 @@ public class DataPemeriksaanAnak {
 
     @Column("fk_ortu_id")
     private Long fkOrtuId;
+
+    @Column("fk_data_anak")
+    private Long fkDataAnak;
 }
