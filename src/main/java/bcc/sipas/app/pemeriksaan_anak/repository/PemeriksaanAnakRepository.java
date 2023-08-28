@@ -45,20 +45,6 @@ public class PemeriksaanAnakRepository {
                 )
                 .offset(page.getOffset())
                 .limit(page.getPageSize());
-//        if(ortuId != null && faskesId != null && kehamilanId != null){
-//            query = Query
-//                    .query(
-//                            CriteriaDefinition.from(
-//                                    Criteria.where("fk_ortu_id").is(ortuId)
-//                                            .and(
-//                                                    Criteria.where("fk_faskes_id").is(faskesId)
-//                                            )
-//                                            .and(
-//                                                    Criteria.where("fk_kehamilan_id").is(kehamilanId)
-//                                            )
-//                            )
-//                    );
-//        }
         return Mono.from(this
                 .template
                 .select(query, DataPemeriksaanAnak.class)
