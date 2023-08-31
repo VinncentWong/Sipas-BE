@@ -26,17 +26,18 @@ import java.util.List;
 @Slf4j
 public class SecurityConfiguration {
 
-
     String[] authPost = {
             "/ortu/**",
             "/kehamilan/**",
-            "/anak/**"
+            "/anak/**",
+            "/resep/makanan/**"
     };
 
     String[] authGet = {
             "/ortu/**",
             "/orangtua/{id}",
             "/anak",
+            "/resep/makanan/**"
     };
 
     @Bean

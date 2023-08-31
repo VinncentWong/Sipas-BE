@@ -1,14 +1,13 @@
 package bcc.sipas.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 public class StorageResponse {
     private String publicId;
     private String signature;

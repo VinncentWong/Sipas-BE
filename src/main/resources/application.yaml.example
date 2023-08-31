@@ -29,3 +29,6 @@ springdoc:
       use-basic-authentication-with-access-code-grant:
   show-actuator:
   enable-spring-security:
+
+cloudinary:
+  url:

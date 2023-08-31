@@ -3,7 +3,9 @@ package bcc.sipas.app.storage.repository;
 import bcc.sipas.entity.StorageResponse;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+@Component
+@Slf4j
 public class StorageRepository implements IStorageRepository{
 
     @Autowired
@@ -26,17 +30,18 @@ public class StorageRepository implements IStorageRepository{
     }
 
     @Override
-    public Mono<StorageResponse> create(String file) {
+    public Mono<StorageResponse> create(byte[] file) {
+        log.info("file = {}", file);
         return Mono.fromFuture(
                 CompletableFuture
                 .supplyAsync(() -> {
                     try {
                         var res = this.cloudinary
                                 .uploader()
-                                .upload(file, ObjectUtils.emptyMap());
+                                .upload(file, ObjectUtils.asMap("folder", "sipas"));
                         return this.convertIntoStorageResponse(res);
                     } catch (IOException e) {
-                        throw new RuntimeException("terjadi kesalahan pada saat menyimpan ke storage");
+                        throw new RuntimeException(String.format("terjadi kesalahan pada saat menyimpan ke storage dengan pesan %s", e.getMessage()));
                     }
                 })
         );

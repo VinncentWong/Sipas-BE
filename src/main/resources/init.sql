@@ -167,3 +167,20 @@ CREATE TABLE IF NOT EXISTS "data_pemeriksaan_anak"(
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+alter table resep_makanan
+add column public_id VARCHAR(255) not null default '';
+
+DROP TABLE IF EXISTS "artikel";
+CREATE TABLE IF NOT EXISTS "artikel"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    link_gambar VARCHAR(255) NOT NULL DEFAULT '',
+    judul_artikel VARCHAR(255) NOT NULL DEFAULT '',
+    peninjau VARCHAR(255) NOT NULL DEFAULT '',
+    isi_text TEXT NOT NULL DEFAULT '',
+    fk_faskes_id INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
