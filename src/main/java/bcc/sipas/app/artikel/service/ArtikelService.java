@@ -1,0 +1,114 @@
+package bcc.sipas.app.artikel.service;
+
+import bcc.sipas.app.artikel.repository.ArtikelRepository;
+import bcc.sipas.app.storage.repository.StorageRepository;
+import bcc.sipas.dto.ArtikelDto;
+import bcc.sipas.entity.Artikel;
+import bcc.sipas.entity.PaginationResult;
+import bcc.sipas.entity.Response;
+import bcc.sipas.util.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
+@Service
+@Transactional
+@Slf4j
+public class ArtikelService implements IArtikelService{
+
+    @Autowired
+    private StorageRepository storageRepository;
+
+    @Autowired
+    private ArtikelRepository artikelRepository;
+
+    @Override
+    public Mono<ResponseEntity<Response<Artikel>>> create(ArtikelDto.Create dto, Long faskesId, Mono<FilePart> image) {
+        return image
+                .flatMap((d) -> {
+                    try {
+                        File file = File.createTempFile("image_", d.filename());
+                        return d.transferTo(file).then(Mono.just(file));
+                    } catch (IOException e) {
+                        return Mono.error(e);
+                    }
+                })
+                .flatMap((d) -> {
+                    try {
+                        byte[] bytes = Files.readAllBytes(d.toPath());
+                        d.delete();
+                        return this.storageRepository.create(bytes);
+                    } catch (IOException e) {
+                        return Mono.error(e);
+                    }
+                })
+                .flatMap((d) -> {
+                    Artikel artikel = dto.toArtikel();
+                    artikel.setPublicId(d.getPublicId());
+                    artikel.setLinkGambar(d.getSecureUrl());
+                    artikel.setFkFaskesId(faskesId);
+                    return this.artikelRepository.save(artikel);
+                })
+                .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil
+                        .sendResponse(
+                                HttpStatus.CREATED,
+                                Response
+                                        .<Artikel>builder()
+                                        .data(d)
+                                        .message("sukses membuat artikel")
+                                        .success(true)
+                                        .build()
+                        )));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<Artikel>>>> getList(Long faskesId, Pageable pageable) {
+        return this.artikelRepository
+                .getList(faskesId, pageable)
+                .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<Artikel>>builder()
+                                .success(true)
+                                .message("sukses mendapatkan list artikel")
+                                .data(d.getContent())
+                                .pagination(
+                                        PaginationResult
+                                                .<List<Artikel>>builder()
+                                                .currentPage(pageable.getPageNumber())
+                                                .currentElement(d.getNumberOfElements())
+                                                .totalElement(d.getTotalElements())
+                                                .totalPage(d.getTotalPages())
+                                                .build()
+                                )
+                                .build()
+                )));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> delete(Long id) {
+        return this.artikelRepository
+                .delete(id)
+                .then(Mono.fromCallable(() -> ResponseUtil
+                        .sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<Void>builder()
+                                        .message("sukses menghapus data artikel")
+                                        .success(true)
+                                        .build()
+                    ))
+                );
+    }
+}

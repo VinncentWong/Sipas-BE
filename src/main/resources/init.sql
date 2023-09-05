@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS "grup_whatsapp"(
 DROP TABLE IF EXISTS "resep_makanan";
 CREATE TABLE IF NOT EXISTS "resep_makanan"(
     id BIGSERIAL NOT NULL PRIMARY KEY,
+    public_id VARCHAR(255) NOT NULL DEFAULT '',
     url_gambar VARCHAR(255) NOT NULL DEFAULT '',
     judul_resep VARCHAR(255) NOT NULL DEFAULT '',
     target_resep VARCHAR(255) NOT NULL DEFAULT '',
@@ -174,6 +175,7 @@ add column public_id VARCHAR(255) not null default '';
 DROP TABLE IF EXISTS "artikel";
 CREATE TABLE IF NOT EXISTS "artikel"(
     id BIGSERIAL NOT NULL PRIMARY KEY,
+    public_id VARCHAR(255) NOT NULL DEFAULT '',
     link_gambar VARCHAR(255) NOT NULL DEFAULT '',
     judul_artikel VARCHAR(255) NOT NULL DEFAULT '',
     peninjau VARCHAR(255) NOT NULL DEFAULT '',
@@ -183,4 +185,22 @@ CREATE TABLE IF NOT EXISTS "artikel"(
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
+);
+
+DROP TABLE IF EXISTS "chat_message";
+CREATE TABLE IF NOT EXISTS "chat_message"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    message TEXT NOT NULL DEFAULT '',
+    fk_ortu_id INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS "chat_response";
+CREATE TABLE IF NOT EXISTS "chat_response"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    response TEXT NOT NULL DEFAULT '',
+    fk_ortu_id INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

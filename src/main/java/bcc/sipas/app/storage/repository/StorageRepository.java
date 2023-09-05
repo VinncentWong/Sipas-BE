@@ -31,7 +31,6 @@ public class StorageRepository implements IStorageRepository{
 
     @Override
     public Mono<StorageResponse> create(byte[] file) {
-        log.info("file = {}", file);
         return Mono.fromFuture(
                 CompletableFuture
                 .supplyAsync(() -> {

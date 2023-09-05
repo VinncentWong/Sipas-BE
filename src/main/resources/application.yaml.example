@@ -32,3 +32,6 @@ springdoc:
 
 cloudinary:
   url:
+
+openai:
+  key:

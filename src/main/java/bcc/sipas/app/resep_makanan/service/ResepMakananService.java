@@ -7,6 +7,7 @@ import bcc.sipas.dto.ResepMakananDto;
 import bcc.sipas.entity.PaginationResult;
 import bcc.sipas.entity.ResepMakanan;
 import bcc.sipas.entity.Response;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,7 @@ public class ResepMakananService implements IResepMakananService{
     public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, Pageable pageable) {
         return this.repository
                 .getList(id, pageable)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
                 .flatMap((d) -> Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.OK,
                         Response

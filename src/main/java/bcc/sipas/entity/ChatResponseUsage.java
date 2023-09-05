@@ -7,29 +7,23 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Table(name = "artikel")
+@Table(name = "chat_response_usage")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Setter
 @Getter
 @ToString
-public class Artikel {
+public class ChatResponseUsage {
 
     @Id
     private Long id;
 
-    private String publicId;
+    private Long totalTokens;
 
-    private String linkGambar;
+    private Long fkOrtuId;
 
-    private String judulArtikel;
-
-    private String peninjau;
-
-    private String isiText;
-
-    private Long fkFaskesId;
+    private Long fkChatResponse;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate createdAt;
