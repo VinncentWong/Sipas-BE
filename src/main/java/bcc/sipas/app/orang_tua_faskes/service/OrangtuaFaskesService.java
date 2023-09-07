@@ -78,7 +78,7 @@ class OrangtuaFaskesService implements IOrangtuaFaskesService {
     }
 
     @Override
-    public Flux<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(Long faskesId, Pageable page) {
+    public Mono<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(Long faskesId, Pageable page) {
         return this
                 .orangtuaFaskesRepository
                 .getList(faskesId, page)

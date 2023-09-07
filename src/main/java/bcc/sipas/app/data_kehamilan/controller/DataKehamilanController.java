@@ -20,6 +20,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @RestController
 @Tag(name = "Data Kehamilan")
 @SecurityRequirement(name = "bearerAuth")
@@ -72,5 +74,25 @@ public class DataKehamilanController {
             @PathVariable("id") Long id
     ){
         return this.service.get(id);
+    }
+
+    @Operation(description = "mendapatkan statistik data kehamilan dari faskes")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan data kehamilan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @GetMapping(
+            value = "/statistik",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Map<String, Long>>>> getDataKehamilanStatistic(
+            JwtAuthentication<String> jwtAuthentication
+    ){
+        return this.service.count(Long.parseLong(jwtAuthentication.getId()));
     }
 }

@@ -204,3 +204,13 @@ CREATE TABLE IF NOT EXISTS "chat_response"(
     -- Helper
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+DROP TABLE IF EXISTS "chat_response_usage";
+CREATE TABLE IF NOT EXISTS "chat_response_usage"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    total_tokens BIGINT NOT NULL DEFAULT 0,
+    fk_ortu_id INT,
+    fk_chat_response INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

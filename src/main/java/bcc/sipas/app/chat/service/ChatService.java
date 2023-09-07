@@ -17,11 +17,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -49,7 +52,7 @@ public class ChatService implements IChatService{
                 .builder()
                 .model(OpenApiConstant.MODEL)
                 .messages(List.of(
-                        new OpenApiRequest.Payload(OpenApiConstant.ROLE, message)
+                        new OpenApiRequest.Payload(OpenApiConstant.ROLE, message + OpenApiConstant.NOTES)
                 ))
                 .build();
         return WebClient.create(OpenApiConstant.URL)
@@ -84,8 +87,9 @@ public class ChatService implements IChatService{
                                             .fkChatResponse(v.getT2().getId())
                                             .fkOrtuId(ortuId)
                                             .createdAt(LocalDate.now())
-                                            .build()
-                            ))
+                                            .build())
+                            )
+                            .flatMap((v) -> v)
                             .then(Mono.fromCallable(() -> ResponseUtil.sendResponse(
                                     HttpStatus.OK,
                                     Response
@@ -100,26 +104,59 @@ public class ChatService implements IChatService{
 
     @Override
     public Mono<ResponseEntity<Response<OpenApiClientResponse>>> get(Long ortuId) {
-        Mono<List<ChatMessage>> chatMessageFlux = this.chatMessageRepository.findAllById(List.of(ortuId)).collectList();
-        Mono<List<ChatResponse>> chatResponseFlux = this.chatResponseRepository.findAllById(List.of(ortuId)).collectList();
+        Mono<List<ChatMessage>> chatMessageFlux = this.chatMessageRepository.findByOrtuId(ortuId).collectList();
+        Mono<List<ChatResponse>> chatResponseFlux = this.chatResponseRepository.findByOrtuId(ortuId).collectList();
         return Mono.zip(
                 Mono.from(chatMessageFlux),
                 Mono.from(chatResponseFlux)
         )
-                .map((v) -> ResponseUtil.sendResponse(
-                        HttpStatus.OK,
-                        Response
-                                .<OpenApiClientResponse>builder()
-                                .message("sukses mendapatkan history chat")
-                                .success(true)
-                                .data(
-                                        OpenApiClientResponse
-                                                .builder()
-                                                .messages(v.getT1().stream().map(ChatMessage::getMessage).toList())
-                                                .responses(v.getT2().stream().map(ChatResponse::getResponse).toList())
-                                                .build()
-                                )
-                                .build()
-                ));
+                .map((v) -> {
+                    List<ChatMessage> listMessage = v.getT1();
+                    List<ChatResponse> listResponse = v.getT2();
+                    Map<LocalDate, List<ChatMessage>> mapMessage = new LinkedHashMap<>();
+                    Map<LocalDate, List<ChatResponse>> mapResponse = new LinkedHashMap<>();
+                    listMessage.forEach((message) -> {
+                        var value = mapMessage.get(message.getCreatedAt());
+                        if(value == null){
+                            var mapListValue = new ArrayList<ChatMessage>();
+                            mapListValue.add(message);
+                            mapMessage.put(message.getCreatedAt(), mapListValue);
+                        } else {
+                            value.add(message);
+                        }
+                    });
+                    listResponse.forEach((response) -> {
+                        var value = mapResponse.get(response.getCreatedAt());
+                        if(value == null){
+                            var mapListValue = new ArrayList<ChatResponse>();
+                            mapListValue.add(response);
+                            mapResponse.put(response.getCreatedAt(), mapListValue);
+                        } else {
+                            value.add(response);
+                        }
+                    });
+                    return List.of(mapMessage, mapResponse);
+                })
+                .map((v) -> {
+                    var mapValue = v.get(0);
+                    var mapResponse = v.get(1);
+                    List<? extends List<?>> listListChatMessage = mapValue.values().stream().toList();
+                    List<? extends List<?>> listListChatResponse = mapResponse.values().stream().toList();
+                    return ResponseUtil.sendResponse(
+                            HttpStatus.OK,
+                            Response
+                                    .<OpenApiClientResponse>builder()
+                                    .message("sukses mendapatkan history chat")
+                                    .success(true)
+                                    .data(
+                                            OpenApiClientResponse
+                                                    .builder()
+                                                    .messages(listListChatMessage)
+                                                    .responses(listListChatResponse)
+                                                    .build()
+                                    )
+                                    .build()
+                    );
+                });
     }
 }

@@ -11,6 +11,6 @@ import java.util.List;
 @Getter
 @ToString
 public class OpenApiClientResponse {
-    private List<String> messages;
-    private List<String> responses;
+    private List<?> messages;
+    private List<?> responses;
 }

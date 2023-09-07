@@ -2,6 +2,7 @@ package bcc.sipas.app.artikel.repository;
 
 import bcc.sipas.entity.Artikel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -56,5 +57,10 @@ public class ArtikelRepository {
                     return this.repository.save(d);
                 })
                 .then(Mono.empty());
+    }
+
+    public Mono<Long> count(Example<Artikel> example){
+        return this.repository
+                .count(example);
     }
 }

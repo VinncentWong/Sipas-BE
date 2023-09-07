@@ -46,7 +46,7 @@ public class ResepMakananRepository {
                 .flatMap((d) -> Mono.fromCallable(() -> new PageImpl<>(d.getT1(), pageable, d.getT2())));
     }
 
-    public  Mono<Void> delete(Long id){
+    public Mono<Void> delete(Long id){
         return this.repository
                 .findOne(Example.of(ResepMakanan.builder().id(id).build()))
                 .flatMap((e) -> {
@@ -54,5 +54,10 @@ public class ResepMakananRepository {
                     return this.repository.save(e);
                 })
                 .then(Mono.empty());
+    }
+
+    public Mono<Long> count(Example<ResepMakanan> example){
+        return this.repository
+                .count(example);
     }
 }

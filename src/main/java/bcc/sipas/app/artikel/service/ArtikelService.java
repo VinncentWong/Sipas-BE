@@ -9,6 +9,8 @@ import bcc.sipas.entity.Response;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,5 +112,22 @@ public class ArtikelService implements IArtikelService{
                                         .build()
                     ))
                 );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Long>>> count(Long faskesId) {
+        return this.artikelRepository
+                .count(Example.of(Artikel.builder().fkFaskesId(faskesId).build()))
+                .flatMap((d) -> Mono.fromCallable(() ->
+                        ResponseUtil.sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<Long>builder()
+                                        .data(d)
+                                        .success(true)
+                                        .message("sukses mendapatkan jumlah data makanan")
+                                        .build()
+                        )
+                ));
     }
 }

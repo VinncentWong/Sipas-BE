@@ -2,6 +2,7 @@ package bcc.sipas.app.chat.controller;
 
 import bcc.sipas.app.chat.service.IChatService;
 import bcc.sipas.dto.ChatDto;
+import bcc.sipas.entity.OpenApiClientResponse;
 import bcc.sipas.entity.OpenApiResponse;
 import bcc.sipas.entity.Response;
 import bcc.sipas.security.authentication.JwtAuthentication;
@@ -13,11 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Tag(name = "Chat with OpenAI")
 @RestController
@@ -43,5 +43,17 @@ public class ChatController {
             JwtAuthentication<String> jwtAuthentication
     ){
         return this.service.create(Long.parseLong(jwtAuthentication.getId()), dto.message());
+    }
+
+    @Operation(description = "mendapatkan list chat dengan open ai grouped by tanggal chat")
+    @GetMapping(
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<OpenApiClientResponse>>> get(
+            JwtAuthentication<String> jwtAuthentication
+    ){
+        return this.service.get(Long.parseLong(jwtAuthentication.getId()));
     }
 }

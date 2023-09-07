@@ -14,5 +14,5 @@ import java.util.List;
 public interface IOrangtuaFaskesService {
 
     Mono<ResponseEntity<Response<OrangtuaFaskes>>> connectFaskes(Long id, String kodeUnik);
-    Flux<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(Long faskesId, Pageable page);
+    Mono<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(Long faskesId, Pageable page);
 }

@@ -14,4 +14,5 @@ public interface IArtikelService {
     Mono<ResponseEntity<Response<Artikel>>> create(ArtikelDto.Create dto, Long faskesId, Mono<FilePart> image);
     Mono<ResponseEntity<Response<List<Artikel>>>> getList(Long faskesId, Pageable pageable);
     Mono<ResponseEntity<Response<Void>>> delete(Long id);
+    Mono<ResponseEntity<Response<Long>>> count(Long faskesId);
 }

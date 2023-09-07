@@ -12,6 +12,8 @@ import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 public class PemeriksaanKehamilanRepository {
 
@@ -47,5 +49,17 @@ public class PemeriksaanKehamilanRepository {
                 .collectList()
                 .zipWith(this.repository.count())
                 .flatMap((t) -> Mono.<Page<DataPemeriksaanKehamilan>>fromCallable(() -> new PageImpl<>(t.getT1(), page, t.getT2())));
+    }
+
+    public Mono<List<DataPemeriksaanKehamilan>> count(List<Long> ids){
+        Query query = Query.query(
+                Criteria.where("fk_ortu_id").in(ids)
+                        .and(
+                                Criteria.where("deleted_at").isNull()
+                        )
+        );
+        return this.template
+                .select(query, DataPemeriksaanKehamilan.class)
+                .collectList();
     }
 }

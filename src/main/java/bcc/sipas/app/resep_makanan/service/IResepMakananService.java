@@ -15,4 +15,5 @@ public interface IResepMakananService {
     Mono<ResponseEntity<Response<ResepMakanan>>> create(Long faskesId, ResepMakananDto.Create dto, Mono<FilePart> image);
     Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, Pageable pageable);
     Mono<ResponseEntity<Response<Void>>> delete(Long id);
+    Mono<ResponseEntity<Response<Long>>> count(Long faskesId);
 }

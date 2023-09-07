@@ -79,4 +79,17 @@ public class ResepMakananController {
     ){
         return this.service.delete(id);
     }
+
+    @Operation(description = "mendapatkan jumlah resep makanan")
+    @GetMapping(
+            value = "/count",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Long>>> count(
+            JwtAuthentication<String> jwtAuth
+    ){
+        return this.service.count(Long.parseLong(jwtAuth.getId()));
+    }
 }

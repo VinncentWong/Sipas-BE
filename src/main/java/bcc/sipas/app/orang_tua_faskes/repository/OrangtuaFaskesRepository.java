@@ -14,6 +14,8 @@ import org.springframework.data.relational.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Configuration
 public class OrangtuaFaskesRepository {
 
@@ -32,15 +34,18 @@ public class OrangtuaFaskesRepository {
                 .using(ortuFaskes);
     }
 
-    public Flux<Page<OrangtuaFaskes>> getList(Long faskesId, Pageable pageable){
+    public Mono<Page<OrangtuaFaskes>> getList(Long faskesId, Pageable pageable){
         Query query = Query.query(
                 CriteriaDefinition.from(
                         Criteria.where("fk_faskes_id").is(faskesId)
                 )
         ).with(pageable);
-        return Flux.from(this.template.select(query, OrangtuaFaskes.class))
-                .collectList()
+        return Mono.from(this.template.select(query, OrangtuaFaskes.class).collectList())
                 .zipWith(this.repository.count())
-                .flatMapMany((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), pageable, t.getT2())));
+                .flatMap((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), pageable, t.getT2())));
+    }
+
+    public Mono<List<OrangtuaFaskes>> getList(List<Long> id){
+        return this.repository.findAllById(id).collectList();
     }
 }
