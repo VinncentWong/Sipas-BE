@@ -59,4 +59,10 @@ public class DataAnakDto {
                             .build();
             }
     }
+
+        public record SearchByName(
+                @NotNull(message = "nama ortu harus ada")
+                @NotBlank(message = "nama ortu tidak boleh kosong")
+                String namaOrtu
+        ){}
 }

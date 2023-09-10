@@ -1,26 +1,33 @@
 package bcc.sipas.app.data_anak.service;
 
 import bcc.sipas.app.data_anak.repository.DataAnakRepository;
+import bcc.sipas.app.orang_tua_faskes.repository.OrangtuaFaskesRepository;
 import bcc.sipas.app.ortu.repository.OrangtuaRepository;
+import bcc.sipas.app.pemeriksaan_anak.repository.PemeriksaanAnakRepository;
 import bcc.sipas.dto.DataAnakDto;
-import bcc.sipas.entity.DataAnak;
-import bcc.sipas.entity.Orangtua;
-import bcc.sipas.entity.PaginationResult;
-import bcc.sipas.entity.Response;
+import bcc.sipas.dto.DataPemeriksaanAnakDto;
+import bcc.sipas.entity.*;
 import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
+import bcc.sipas.util.CollectionUtils;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -32,6 +39,12 @@ public class DataAnakService implements IDataAnakService{
 
     @Autowired
     private OrangtuaRepository orangtuaRepository;
+
+    @Autowired
+    private OrangtuaFaskesRepository ortuFaskesRepository;
+
+    @Autowired
+    private PemeriksaanAnakRepository pemeriksaanAnakRepository;
 
     @Override
     public Mono<ResponseEntity<Response<DataAnak>>> create(Long id, DataAnakDto.Create dto) {
@@ -95,6 +108,112 @@ public class DataAnakService implements IDataAnakService{
                            )
                    )
                 );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Map<String, Long>>>> count(Long faskesId) {
+        return this.ortuFaskesRepository
+                .getList(faskesId, Pageable.unpaged())
+                .map(Page::getContent)
+                .map((d) -> d.stream().parallel().map(OrangtuaFaskes::getFkOrtuId).toList())
+                .flatMap((ortuIds) -> this.repository.getList(ortuIds, Pageable.unpaged()))
+                .map(Page::getContent)
+                .map((dataAnaks) -> dataAnaks.stream().parallel().map(DataAnak::getId).toList())
+                .flatMap((dataAnakIds) ->
+                        this
+                                .pemeriksaanAnakRepository
+                                .getList(dataAnakIds, Pageable.unpaged())
+                                .map(Page::getContent)
+                                .map((dataPemeriksaanAnaks) -> ResponseUtil
+                                        .sendResponse(
+                                                HttpStatus.OK,
+                                                Response
+                                                        .<Map<String, Long>>builder()
+                                                        .success(true)
+                                                        .message("sukses mendapatkan data statistik pemeriksaan anak")
+                                                        .data(
+                                                                CollectionUtils.ofLinkedHashMap(
+                                                                        new String[]{"jumlahProfilAnak", "jumlahSudahPeriksa", "jumlahBelumPeriksa"},
+                                                                        new Long[]{(long)dataAnakIds.size(), (long)dataPemeriksaanAnaks.size(), (long)dataAnakIds.size() - dataPemeriksaanAnaks.size()}
+                                                                )
+                                                        )
+                                                        .build()
+                                        ))
+                )
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<DataAnak>>>> getList(Long faskesId, DataAnakDto.SearchByName dto, Pageable pageable) {
+        return this.ortuFaskesRepository
+                .getList(faskesId, Pageable.unpaged())
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")))
+                .map(Page::getContent)
+                .map((p) -> p.stream().parallel().map(OrangtuaFaskes::getFkOrtuId).toList())
+                .flatMap((ortuIds) ->
+                        this
+                                .repository
+                                .getList(ortuIds, Pageable.unpaged())
+                                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan pada data anak")))
+                                .map(Page::getContent)
+                                .zipWith(this.orangtuaRepository.findAll(ortuIds, dto.namaOrtu()))
+                )
+                .map((t) -> {
+                    List<DataAnak> dataAnaks = t.getT1();
+                    List<Orangtua> orangtuas = t.getT2();
+                    List<Long> idOrangtuas = orangtuas.stream().parallel().map(Orangtua::getId).toList();
+                    Map<Long, List<DataAnak>> mapDataAnak = new LinkedHashMap<>();
+                    Map<Long, Orangtua> mapDataOrtu = new LinkedHashMap<>();
+                    List<DataAnak> res = new ArrayList<>();
+                    dataAnaks.forEach((anak) -> {
+                        List<DataAnak> dataAnak = mapDataAnak.get(anak.getFkOrtuId());
+                        if(dataAnak == null || dataAnak.isEmpty()){
+                            List<DataAnak> listAnak = new ArrayList<>();
+                            listAnak.add(anak);
+                            mapDataAnak.put(anak.getFkOrtuId(), listAnak);
+                        } else {
+                            dataAnak.add(anak);
+                        }
+                    });
+
+                    orangtuas.forEach((ortu) -> {
+                        mapDataOrtu.put(ortu.getId(), ortu);
+                    });
+
+                    idOrangtuas.forEach((idOrtu) -> {
+                        List<DataAnak> listDataAnak = mapDataAnak.get(idOrtu);
+                        if(listDataAnak != null){
+                            res.addAll(listDataAnak);
+                        }
+                    });
+
+
+
+                    int offset = (int) pageable.getOffset() * pageable.getPageSize();
+                    List<DataAnak> finalRes = List.copyOf(res);
+                    if(finalRes.size() >= offset + pageable.getPageSize()){
+                         finalRes = finalRes.subList(offset + 1, offset + pageable.getPageSize());
+                    }
+                    return ResponseUtil.sendResponse(
+                            HttpStatus.OK,
+                            Response
+                                    .<List<DataAnak>>builder()
+                                    .data(finalRes)
+                                    .message("sukses mendapatkan hasil pencarian data anak")
+                                    .success(true)
+                                    .pagination(
+                                            PaginationResult
+                                                    .<List<DataAnak>>builder()
+                                                    .currentElement(finalRes.size())
+                                                    .currentPage(pageable.getPageNumber())
+                                                    .totalElement(dataAnaks.size())
+                                                    .totalPage((int)Math.ceil((double)dataAnaks.size()/ pageable.getPageSize()))
+                                                    .build()
+                                    )
+                                    .build()
+                    );
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
 }

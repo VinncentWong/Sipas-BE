@@ -8,6 +8,7 @@ import bcc.sipas.dto.DataKehamilanDto;
 import bcc.sipas.entity.*;
 import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
+import bcc.sipas.util.CollectionUtils;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -108,7 +110,7 @@ public class DataKehamilanService implements IDataKehamilanService{
                 .map((d) -> d.stream().parallel().map(OrangtuaFaskes::getFkOrtuId).toList())
                 .flatMap((ortuIds) -> {
                     Mono<List<DataKehamilan>> dataKehamilan = this.repository
-                            .count(ortuIds);
+                            .count(ortuIds, faskesId);
                     return dataKehamilan
                             .map((v) -> {
                                 var dataKehamilanIds = v.stream().parallel().map(DataKehamilan::getId).collect(Collectors.toList());
@@ -122,15 +124,17 @@ public class DataKehamilanService implements IDataKehamilanService{
                                                                 .<Map<String, Long>>builder()
                                                                 .success(true)
                                                                 .message("sukses mendapatkan data statistik ibu hamil")
-                                                                .data(Map.ofEntries(
-                                                                        Map.entry("jumlahProfilCalonBayi", Integer.toUnsignedLong(v.size())),
-                                                                        Map.entry("jumlahSudahPeriksa", Integer.toUnsignedLong(dataPemeriksaanKehamilans.size())),
-                                                                        Map.entry("jumlahBelumPeriksa", Integer.toUnsignedLong(v.size() - dataPemeriksaanKehamilans.size()))
-                                                                ))
+                                                                .data(
+                                                                        CollectionUtils.ofLinkedHashMap(
+                                                                                new String[]{"jumlahProfilCalonBayi", "jumlahSudahPeriksa", "jumlahBelumPeriksa"},
+                                                                                new Long[]{Integer.toUnsignedLong(v.size()), Integer.toUnsignedLong(dataPemeriksaanKehamilans.size()), Integer.toUnsignedLong(v.size() - dataPemeriksaanKehamilans.size())}
+                                                                        )
+                                                                )
                                                                 .build()
                                                 ));
                             });
                 })
-                .flatMap((v) -> v);
+                .flatMap((v) -> v)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

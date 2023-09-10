@@ -4,6 +4,7 @@ import bcc.sipas.app.data_anak.service.IDataAnakService;
 import bcc.sipas.dto.DataAnakDto;
 import bcc.sipas.entity.DataAnak;
 import bcc.sipas.entity.Response;
+import bcc.sipas.exception.DatabaseException;
 import bcc.sipas.security.authentication.JwtAuthentication;
 import bcc.sipas.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Data Anak")
 @SecurityRequirement(name = "bearerAuth")
@@ -82,5 +84,41 @@ public class DataAnakController {
             @RequestParam(value = "limit", defaultValue = "1") Integer limit
     ){
         return this.service.getList(id, PageRequest.of(page, limit));
+    }
+
+    @PreAuthorize("hasRole('FASKES')")
+    @Operation(description = "mendapatkan statistik data anak dari faskes")
+    @GetMapping(
+            value = {
+                    "/statistik"
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Map<String, Long>>>> count(
+            JwtAuthentication<String> jwtAuthentication
+    ){
+        return this.service.count(Long.parseLong(jwtAuthentication.getId()));
+    }
+
+    @PreAuthorize("hasRole('FASKES')")
+    @Operation(description = "mendapatkan data anak berdasarkan nama orangtua")
+    @GetMapping(
+            value = {
+                    "/ortuname"
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<DataAnak>>>> getByOrangtuaName(
+            @RequestParam("orangtua_name") String orangtuaName,
+            JwtAuthentication<String> jwtAuthentication,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) Long limit,
+            @RequestParam(value = "page", defaultValue = "0", required = false) Long page
+    ){
+        DataAnakDto.SearchByName dto = new DataAnakDto.SearchByName(orangtuaName);
+        return this.service.getList(Long.parseLong(jwtAuthentication.getId()), dto, PageRequest.of(page.intValue(), limit.intValue()));
     }
 }

@@ -20,9 +20,6 @@ import java.util.List;
 public class OrangtuaFaskesRepository {
 
     @Autowired
-    private PostgresqlConnectionFactory factory;
-
-    @Autowired
     private IOrangtuaFaskesRepository repository;
 
     @Autowired
@@ -34,6 +31,9 @@ public class OrangtuaFaskesRepository {
                 .using(ortuFaskes);
     }
 
+    /***
+     * This method get List of OrangtuaFaskes data with filter faskesId
+     */
     public Mono<Page<OrangtuaFaskes>> getList(Long faskesId, Pageable pageable){
         Query query = Query.query(
                 CriteriaDefinition.from(
@@ -45,6 +45,9 @@ public class OrangtuaFaskesRepository {
                 .flatMap((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), pageable, t.getT2())));
     }
 
+    /***
+     * This method get List of OrangtuaFaskes data with filter List of orangtua_faskes ids
+     */
     public Mono<List<OrangtuaFaskes>> getList(List<Long> id){
         return this.repository.findAllById(id).collectList();
     }

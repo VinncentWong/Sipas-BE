@@ -4,10 +4,14 @@ import bcc.sipas.entity.Orangtua;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 public class OrangtuaRepository {
@@ -17,6 +21,9 @@ public class OrangtuaRepository {
 
     @Autowired
     private IOrangtuaRepository repository;
+
+    @Autowired
+    private R2dbcEntityTemplate template;
 
     public Mono<Orangtua> save(Orangtua orangtua){
         orangtua.setCreatedAt(LocalDate.now());
@@ -50,6 +57,24 @@ public class OrangtuaRepository {
 
     public Mono<Orangtua> findById(Long id){
         return this.repository.findById(id);
+    }
+
+    public Mono<List<Orangtua>> findAll(List<Long> ids, String namaOrtu){
+        Query query = Query.query(
+                Criteria.where("id").in(ids)
+                        .and(
+                                Criteria.where("nama_ayah").like(namaOrtu).ignoreCase(true)
+                                        .or(
+                                                Criteria.where("nama_ibu").like(String.format("%%%s%%", namaOrtu)).ignoreCase(true)
+                                        )
+                        )
+                        .and(
+                                Criteria.where("deleted_at").isNull()
+                        )
+        );
+        return this.template
+                .select(query, Orangtua.class)
+                .collectList();
     }
 
     public Mono<Orangtua> update(Orangtua orangtua){

@@ -34,12 +34,15 @@ public class DataKehamilanRepository {
         return this.dataKehamilanRepository.count(example);
     }
 
-    public Mono<List<DataKehamilan>> count(List<Long> ids){
+    public Mono<List<DataKehamilan>> count(List<Long> ids, Long fkFaskesId){
         Query query = Query.query(
                 CriteriaDefinition.from(
                         Criteria.where("fk_ortu_id").in(ids)
                                 .and(
                                         Criteria.where("deleted_at").isNull()
+                                )
+                                .and(
+                                        Criteria.where("fk_faskes_id").is(fkFaskesId)
                                 )
                 )
         );

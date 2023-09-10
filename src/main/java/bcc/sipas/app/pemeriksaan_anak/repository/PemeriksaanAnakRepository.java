@@ -53,4 +53,18 @@ public class PemeriksaanAnakRepository {
                 .flatMapMany((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), page, t.getT2())))
         );
     }
+
+    public Mono<Page<DataPemeriksaanAnak>> getList(List<Long> dataAnakIds, Pageable pageable){
+        Query query = Query.query(
+                Criteria.where("fk_data_anak").in(dataAnakIds)
+                        .and(
+                                Criteria.where("deleted_at").isNull()
+                        )
+        ).with(pageable);
+        return this.template
+                .select(query, DataPemeriksaanAnak.class)
+                .collectList()
+                .zipWith(this.repository.count())
+                .map((l) -> new PageImpl<>(l.getT1(), pageable, l.getT2()));
+    }
 }
