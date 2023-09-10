@@ -144,7 +144,7 @@ public class DataAnakService implements IDataAnakService{
     }
 
     @Override
-    public Mono<ResponseEntity<Response<List<DataAnak>>>> getList(Long faskesId, DataAnakDto.SearchByName dto, Pageable pageable) {
+    public Mono<ResponseEntity<Response<DataAnakOrtu>>> getList(Long faskesId, DataAnakDto.SearchByName dto, Pageable pageable) {
         return this.ortuFaskesRepository
                 .getList(faskesId, Pageable.unpaged())
                 .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")))
@@ -162,9 +162,14 @@ public class DataAnakService implements IDataAnakService{
                     List<DataAnak> dataAnaks = t.getT1();
                     List<Orangtua> orangtuas = t.getT2();
                     List<Long> idOrangtuas = orangtuas.stream().parallel().map(Orangtua::getId).toList();
+
                     Map<Long, List<DataAnak>> mapDataAnak = new LinkedHashMap<>();
                     Map<Long, Orangtua> mapDataOrtu = new LinkedHashMap<>();
+                    List<Long> idsOrtuExist = new ArrayList<>();
+
                     List<DataAnak> res = new ArrayList<>();
+                    List<Orangtua> resOrtu = new ArrayList<>();
+
                     dataAnaks.forEach((anak) -> {
                         List<DataAnak> dataAnak = mapDataAnak.get(anak.getFkOrtuId());
                         if(dataAnak == null || dataAnak.isEmpty()){
@@ -184,26 +189,34 @@ public class DataAnakService implements IDataAnakService{
                         List<DataAnak> listDataAnak = mapDataAnak.get(idOrtu);
                         if(listDataAnak != null){
                             res.addAll(listDataAnak);
+                            idsOrtuExist.add(idOrtu);
                         }
                     });
 
-
+                    idsOrtuExist.forEach((idOrtu) -> resOrtu.add(mapDataOrtu.get(idOrtu)));
 
                     int offset = (int) pageable.getOffset() * pageable.getPageSize();
                     List<DataAnak> finalRes = List.copyOf(res);
                     if(finalRes.size() >= offset + pageable.getPageSize()){
                          finalRes = finalRes.subList(offset + 1, offset + pageable.getPageSize());
                     }
+
+                    DataAnakOrtu dataAnakOrtu = DataAnakOrtu
+                            .builder()
+                            .dataAnak(finalRes)
+                            .ortu(resOrtu)
+                            .build();
+
                     return ResponseUtil.sendResponse(
                             HttpStatus.OK,
                             Response
-                                    .<List<DataAnak>>builder()
-                                    .data(finalRes)
+                                    .<DataAnakOrtu>builder()
+                                    .data(dataAnakOrtu)
                                     .message("sukses mendapatkan hasil pencarian data anak")
                                     .success(true)
                                     .pagination(
                                             PaginationResult
-                                                    .<List<DataAnak>>builder()
+                                                    .<DataAnakOrtu>builder()
                                                     .currentElement(finalRes.size())
                                                     .currentPage(pageable.getPageNumber())
                                                     .totalElement(dataAnaks.size())

@@ -3,6 +3,7 @@ package bcc.sipas.app.data_anak.controller;
 import bcc.sipas.app.data_anak.service.IDataAnakService;
 import bcc.sipas.dto.DataAnakDto;
 import bcc.sipas.entity.DataAnak;
+import bcc.sipas.entity.DataAnakOrtu;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.DatabaseException;
 import bcc.sipas.security.authentication.JwtAuthentication;
@@ -112,7 +113,7 @@ public class DataAnakController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
-    public Mono<ResponseEntity<Response<List<DataAnak>>>> getByOrangtuaName(
+    public Mono<ResponseEntity<Response<DataAnakOrtu>>> getByOrangtuaName(
             @RequestParam("orangtua_name") String orangtuaName,
             JwtAuthentication<String> jwtAuthentication,
             @RequestParam(value = "limit", defaultValue = "10", required = false) Long limit,

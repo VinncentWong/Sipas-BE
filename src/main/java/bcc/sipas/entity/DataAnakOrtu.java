@@ -2,6 +2,8 @@ package bcc.sipas.entity;
 
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -9,6 +11,6 @@ import lombok.*;
 @Builder
 @ToString
 public class DataAnakOrtu {
-    private DataAnak dataAnak;
-    private Orangtua ortu;
+    private List<DataAnak> dataAnak;
+    private List<Orangtua> ortu;
 }
