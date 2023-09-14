@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ResepMakananDto {
 
@@ -60,5 +61,43 @@ public class ResepMakananDto {
                             .jenis(this.jenis)
                             .build();
             }
+    }
+
+    public record GetListByIbuHamil(
+            String judulResep,
+            String jenis,
+            String usiaKehamilan,
+            String bahanUtama,
+            String durasiPembuatan
+    ){
+            public ResepMakanan toResepMakanan(){
+                    return ResepMakanan
+                            .builder()
+                            .judulResep(this.judulResep)
+                            .jenis(this.jenis)
+                            .targetUsiaResep(usiaKehamilan)
+                            .bahanUtama(bahanUtama)
+                            .durasiMemasak(durasiPembuatan)
+                            .build();
+            }
+    }
+
+    public record GetListByBayiAnak(
+            String judulResep,
+            String jenis,
+            String usiaBayiAnak,
+            String bahanUtama,
+            String durasiPembuatan
+    ){
+        public ResepMakanan toResepMakanan(){
+            return ResepMakanan
+                    .builder()
+                    .judulResep(this.judulResep)
+                    .jenis(this.jenis)
+                    .targetUsiaResep(usiaBayiAnak)
+                    .bahanUtama(bahanUtama)
+                    .durasiMemasak(durasiPembuatan)
+                    .build();
+        }
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 public class ArtikelRepository {
@@ -62,5 +63,32 @@ public class ArtikelRepository {
     public Mono<Long> count(Example<Artikel> example){
         return this.repository
                 .count(example);
+    }
+
+    public Mono<Page<Artikel>> getList(String judulArtikel, Pageable pageable){
+        Query query = Query.query(
+                Criteria.where("judul_artikel").like(String.format("%%%s%%", judulArtikel)).ignoreCase(true)
+                        .and(
+                                Criteria.where("deleted_at").isNull()
+                        )
+        )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+        return this.template
+                .select(query, Artikel.class)
+                .collectList()
+                .zipWith(this.repository.count())
+                .map((m) -> new PageImpl<>(m.getT1(), pageable, m.getT2()));
+    }
+
+    public Mono<Page<Artikel>> getList(Pageable pageable){
+        Query query = Query.query(
+                Criteria.where("deleted_at").isNull()
+        ).limit(pageable.getPageSize()).offset(pageable.getOffset());
+        return this.template
+                .select(query, Artikel.class)
+                .collectList()
+                .zipWith(this.repository.count())
+                .map((t) -> new PageImpl<>(t.getT1(), pageable, t.getT2()));
     }
 }

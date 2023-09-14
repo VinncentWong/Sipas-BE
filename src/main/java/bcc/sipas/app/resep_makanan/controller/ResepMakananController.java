@@ -50,14 +50,15 @@ public class ResepMakananController {
         return this.service.create(Long.parseLong(jwtAuth.getId()), dto, image);
     }
 
-    @Operation(description = "mendapatkan list data resep makanan")
+    @Operation(description = "mendapatkan list data resep makanan yang sudah diposting faskes")
     @GetMapping(
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
-    @Parameter(name = "limit", in = ParameterIn.QUERY, required = true)
-    @Parameter(name = "page", in = ParameterIn.QUERY, required = true)
+    @PreAuthorize("hasRole('FASKES')")
+    @Parameter(name = "limit", in = ParameterIn.QUERY)
+    @Parameter(name = "page", in = ParameterIn.QUERY)
     public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(
             JwtAuthentication<String> jwtAuth,
             @RequestParam(value = "limit", defaultValue = "10") Long limit,
@@ -73,6 +74,7 @@ public class ResepMakananController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     @Parameter(name = "id", in = ParameterIn.PATH, required = true, description = "id resep makanan")
     public Mono<ResponseEntity<Response<Void>>> delete(
             @PathVariable("id") Long id
@@ -87,9 +89,48 @@ public class ResepMakananController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     public Mono<ResponseEntity<Response<Long>>> count(
             JwtAuthentication<String> jwtAuth
     ){
         return this.service.count(Long.parseLong(jwtAuth.getId()));
+    }
+
+    @Operation(description = "mendapatkan list data resep makanan berdasarkan judul resep makanan untuk ibu hamil")
+    @PostMapping(
+            value = "/kehamilan/judul",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Parameter(name = "limit", in = ParameterIn.QUERY)
+    @Parameter(name = "page", in = ParameterIn.QUERY)
+    public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(
+            JwtAuthentication<String> jwtAuth,
+            @RequestParam(value = "limit", defaultValue = "10") Long limit,
+            @RequestParam(value = "page", defaultValue = "0") Long page,
+            @RequestBody ResepMakananDto.GetListByIbuHamil dto
+    ){
+        return this.service.getList(Long.parseLong(jwtAuth.getId()), dto, PageRequest.of(page.intValue(), limit.intValue()));
+    }
+
+    @Operation(description = "mendapatkan list data resep makanan berdasarkan judul resep makanan untuk bayi anak")
+    @PostMapping(
+            value = "/bayianak/judul",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Parameter(name = "limit", in = ParameterIn.QUERY)
+    @Parameter(name = "page", in = ParameterIn.QUERY)
+    public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(
+            JwtAuthentication<String> jwtAuth,
+            @RequestParam(value = "limit", defaultValue = "10") Long limit,
+            @RequestParam(value = "page", defaultValue = "0") Long page,
+            @RequestBody ResepMakananDto.GetListByBayiAnak dto
+    ){
+        return this.service.getList(Long.parseLong(jwtAuth.getId()), dto, PageRequest.of(page.intValue(), limit.intValue()));
     }
 }

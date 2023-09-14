@@ -16,4 +16,6 @@ public interface IResepMakananService {
     Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, Pageable pageable);
     Mono<ResponseEntity<Response<Void>>> delete(Long id);
     Mono<ResponseEntity<Response<Long>>> count(Long faskesId);
+    Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, ResepMakananDto.GetListByIbuHamil dto, Pageable pageable);
+    Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, ResepMakananDto.GetListByBayiAnak dto, Pageable pageable);
 }

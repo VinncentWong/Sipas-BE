@@ -2,7 +2,9 @@ package bcc.sipas.app.resep_makanan.service;
 
 import bcc.sipas.app.resep_makanan.repository.ResepMakananRepository;
 import bcc.sipas.app.storage.repository.StorageRepository;
+import bcc.sipas.constant.BayiAnakConstant;
 import bcc.sipas.constant.ImageConstant;
+import bcc.sipas.constant.KehamilanConstant;
 import bcc.sipas.dto.ResepMakananDto;
 import bcc.sipas.entity.PaginationResult;
 import bcc.sipas.entity.ResepMakanan;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -138,5 +141,63 @@ public class ResepMakananService implements IResepMakananService{
                                         .build()
                         )
                 ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, ResepMakananDto.GetListByIbuHamil dto, Pageable pageable) {
+        ResepMakanan resepMakanan = dto.toResepMakanan();
+        resepMakanan.setTargetResep(KehamilanConstant.IBU_HAMIL);
+        return this.repository
+                .getList(id, resepMakanan, pageable)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
+                .map(
+                        (d) -> ResponseUtil.sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<List<ResepMakanan>>builder()
+                                        .message("sukses mendapatkan data hasil pencarian resep makanan")
+                                        .success(true)
+                                        .data(d.getContent())
+                                        .pagination(
+                                                PaginationResult
+                                                        .<List<ResepMakanan>>builder()
+                                                        .currentPage(pageable.getPageNumber())
+                                                        .currentElement(d.getNumberOfElements())
+                                                        .totalPage(d.getTotalPages())
+                                                        .totalElement(d.getTotalElements())
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<ResepMakanan>>>> getList(Long id, ResepMakananDto.GetListByBayiAnak dto, Pageable pageable) {
+        ResepMakanan resepMakanan = dto.toResepMakanan();
+        resepMakanan.setTargetResep(BayiAnakConstant.BAYI_ANAK);
+        return this.repository
+                .getList(id, resepMakanan, pageable)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
+                .map(
+                        (d) -> ResponseUtil.sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<List<ResepMakanan>>builder()
+                                        .message("sukses mendapatkan data hasil pencarian resep makanan")
+                                        .success(true)
+                                        .data(d.getContent())
+                                        .pagination(
+                                                PaginationResult
+                                                        .<List<ResepMakanan>>builder()
+                                                        .currentPage(pageable.getPageNumber())
+                                                        .currentElement(d.getNumberOfElements())
+                                                        .totalPage(d.getTotalPages())
+                                                        .totalElement(d.getTotalElements())
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                );
     }
 }

@@ -15,4 +15,6 @@ public interface IArtikelService {
     Mono<ResponseEntity<Response<List<Artikel>>>> getList(Long faskesId, Pageable pageable);
     Mono<ResponseEntity<Response<Void>>> delete(Long id);
     Mono<ResponseEntity<Response<Long>>> count(Long faskesId);
+    Mono<ResponseEntity<Response<List<Artikel>>>> getList(String judulArtikel, Pageable pageable);
+    Mono<ResponseEntity<Response<List<Artikel>>>> getList(Pageable pageable);
 }

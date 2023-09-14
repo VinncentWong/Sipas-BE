@@ -54,6 +54,7 @@ public class ArtikelController {
     @Parameter(name = "page", in = ParameterIn.QUERY)
     @Parameter(name = "limit", in = ParameterIn.QUERY)
     @GetMapping(
+            value = "/faskes/list",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             }
@@ -92,5 +93,42 @@ public class ArtikelController {
             JwtAuthentication<String> jwtAuthentication
     ){
         return this.artikelService.count(Long.parseLong(jwtAuthentication.getId()));
+    }
+
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Operation(description = "mendapatkan list artikel berdasarkan judul artikel(orangtua)")
+    @Parameter(name = "page", in = ParameterIn.QUERY)
+    @Parameter(name = "limit", in = ParameterIn.QUERY)
+    @Parameter(name = "judulArtikel", in = ParameterIn.QUERY)
+    @GetMapping(
+            value = "/ortu/judul",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<Artikel>>>> getList(
+            JwtAuthentication<String> jwtAuth,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit,
+            @RequestParam(value = "judulArtikel") String judulArtikel
+    ){
+        return this.artikelService.getList(judulArtikel, PageRequest.of(page, limit));
+    }
+
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Operation(description = "mendapatkan list artikel(orangtua)")
+    @Parameter(name = "page", in = ParameterIn.QUERY)
+    @Parameter(name = "limit", in = ParameterIn.QUERY)
+    @GetMapping(
+            value = "/ortu/list",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<Artikel>>>> getList(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit
+    ){
+        return this.artikelService.getList(PageRequest.of(page, limit));
     }
 }

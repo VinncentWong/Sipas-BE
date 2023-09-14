@@ -63,7 +63,7 @@ public class OrangtuaRepository {
         Query query = Query.query(
                 Criteria.where("id").in(ids)
                         .and(
-                                Criteria.where("nama_ayah").like(namaOrtu).ignoreCase(true)
+                                Criteria.where("nama_ayah").like(String.format("%%%s%%", namaOrtu)).ignoreCase(true)
                                         .or(
                                                 Criteria.where("nama_ibu").like(String.format("%%%s%%", namaOrtu)).ignoreCase(true)
                                         )

@@ -10,7 +10,6 @@ import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -128,6 +127,54 @@ public class ArtikelService implements IArtikelService{
                                         .message("sukses mendapatkan jumlah data makanan")
                                         .build()
                         )
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<Artikel>>>> getList(String judulArtikel, Pageable pageable) {
+        return this.artikelRepository
+                .getList(judulArtikel, pageable)
+                .map((p) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<Artikel>>builder()
+                                .pagination(
+                                        PaginationResult
+                                                .<List<Artikel>>builder()
+                                                .totalElement(p.getTotalElements())
+                                                .totalPage(p.getTotalPages())
+                                                .currentElement(p.getNumberOfElements())
+                                                .currentPage(pageable.getPageNumber())
+                                                .build()
+                                )
+                                .data(p.getContent())
+                                .success(true)
+                                .message("sukses mendapatkan list data artikel")
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<Artikel>>>> getList(Pageable pageable) {
+        return this.artikelRepository
+                .getList(pageable)
+                .map((p) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<Artikel>>builder()
+                                .message("sukses mendapatkan data list artikel")
+                                .success(true)
+                                .data(p.getContent())
+                                .pagination(
+                                        PaginationResult
+                                                .<List<Artikel>>builder()
+                                                .currentPage(pageable.getPageNumber())
+                                                .currentElement(p.getNumberOfElements())
+                                                .totalPage(p.getTotalPages())
+                                                .totalElement(p.getTotalElements())
+                                                .build()
+                                )
+                                .build()
                 ));
     }
 }
