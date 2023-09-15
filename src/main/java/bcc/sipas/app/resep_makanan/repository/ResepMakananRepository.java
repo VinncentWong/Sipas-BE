@@ -1,6 +1,7 @@
 package bcc.sipas.app.resep_makanan.repository;
 
 import bcc.sipas.entity.ResepMakanan;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.util.QueryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ public class ResepMakananRepository {
         ).limit(pageable.getPageSize()).offset(pageable.getOffset());
         return this.template
                 .select(query, ResepMakanan.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .flatMap((d) -> Mono.fromCallable(() -> new PageImpl<>(d.getT1(), pageable, d.getT2())));
@@ -56,6 +58,7 @@ public class ResepMakananRepository {
         query = query.offset(pageable.getOffset()).limit(pageable.getPageSize());
         return this.template
                 .select(query, ResepMakanan.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .map((t) -> new PageImpl<>(t.getT1(), pageable, t.getT2()));
@@ -64,6 +67,7 @@ public class ResepMakananRepository {
     public Mono<Void> delete(Long id){
         return this.repository
                 .findOne(Example.of(ResepMakanan.builder().id(id).build()))
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data resep makanan tidak ditemukan")))
                 .flatMap((e) -> {
                     e.setDeletedAt(LocalDate.now());
                     return this.repository.save(e);

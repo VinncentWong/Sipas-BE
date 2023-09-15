@@ -60,7 +60,7 @@ public class SecurityConfiguration {
                 .exceptionHandling((c) -> {
                     c.authenticationEntryPoint((exchange, ex) -> {
                         try {
-                            log.info("masuk ke authentication entry point");
+                            log.error("masuk ke authentication entry point");
                             var response = exchange.getResponse();
                             response.setRawStatusCode(HttpStatus.FORBIDDEN.value());
                             response.getHeaders()
@@ -72,7 +72,7 @@ public class SecurityConfiguration {
                         }
                     }).accessDeniedHandler((exchange, ex) -> {
                         try {
-                            log.info("masuk ke access denied handler");
+                            log.error("masuk ke access denied handler");
                             return exchange.getResponse()
                                     .writeWith(returnErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage()));
                         } catch (JsonProcessingException e) {

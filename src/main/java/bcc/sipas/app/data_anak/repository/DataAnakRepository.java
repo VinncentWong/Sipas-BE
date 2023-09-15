@@ -2,6 +2,7 @@ package bcc.sipas.app.data_anak.repository;
 
 import bcc.sipas.entity.DataAnak;
 import bcc.sipas.entity.DataPemeriksaanAnak;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import io.r2dbc.postgresql.api.PostgresqlConnection;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class DataAnakRepository {
     }
 
     public Flux<DataAnak> getList(Example<DataAnak> example){
-        return this.repository.findAll(example);
+        return this.repository.findAll(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")));
     }
 
     public Mono<Page<DataAnak>> getList(Long id, Pageable pageable){
@@ -50,6 +51,7 @@ public class DataAnakRepository {
                                 .limit(pageable.getPageSize())
                                 .offset(pageable.getOffset())
                 ).all()
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .flatMap((d) -> {
@@ -68,6 +70,7 @@ public class DataAnakRepository {
         ).with(page);
         return this.template
                 .select(query, DataAnak.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .map((d) -> new PageImpl<>(d.getT1(), page, d.getT2()));
@@ -85,6 +88,7 @@ public class DataAnakRepository {
         ).with(pageable);
         return this.template
                 .select(query, DataAnak.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .map((dataAnaks -> new PageImpl<>(dataAnaks.getT1(), pageable, dataAnaks.getT2())));

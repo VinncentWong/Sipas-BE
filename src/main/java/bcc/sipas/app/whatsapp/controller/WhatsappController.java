@@ -25,7 +25,6 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/whatsapp")
-@PreAuthorize("hasRole('FASKES')")
 @Slf4j
 public class WhatsappController {
 
@@ -41,6 +40,7 @@ public class WhatsappController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     public Mono<ResponseEntity<Response<GrupWhatsapp>>> create(
             JwtAuthentication<String> jwtAuth,
             @RequestBody WhatsappDto.CreateUpdate dto
@@ -56,6 +56,7 @@ public class WhatsappController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     public Mono<ResponseEntity<Response<GrupWhatsapp>>> delete(
             @PathVariable("id") Long whatsappId
     ){
@@ -70,6 +71,7 @@ public class WhatsappController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     public Mono<ResponseEntity<Response<GrupWhatsapp>>> update(
             @PathVariable("id") Long whatsappId,
             @RequestBody WhatsappDto.CreateUpdate dto
@@ -85,25 +87,46 @@ public class WhatsappController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @PreAuthorize("hasRole('FASKES')")
     public Mono<ResponseEntity<Response<GrupWhatsapp>>> get(
             @PathVariable("id") Long whatsappId
     ){
         return this.service.get(whatsappId);
     }
 
-    @Operation(summary = "mendapatkan list grup whatsapp")
+    @Operation(summary = "mendapatkan list grup whatsapp dari faskes")
     @Parameter(name = "limit", in = ParameterIn.QUERY, description = "limit")
     @Parameter(name = "page", in = ParameterIn.QUERY, description = "page")
     @GetMapping(
+            value = "/faskes",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
-    public Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getList(
+    @PreAuthorize("hasRole('FASKES')")
+    public Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getListFaskes(
             JwtAuthentication<String> jwtAuth,
             @RequestParam(value = "limit", defaultValue = "10") int limit,
             @RequestParam(value = "page", defaultValue = "0") int page
     ){
         return this.service.getList(Long.parseLong(jwtAuth.getId()), PageRequest.of(page, limit));
+    }
+
+    @Operation(summary = "mendapatkan list grup whatsapp dari ortu")
+    @Parameter(name = "limit", in = ParameterIn.QUERY, description = "limit")
+    @Parameter(name = "page", in = ParameterIn.QUERY, description = "page")
+    @GetMapping(
+            value = "/ortu",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    @PreAuthorize("hasRole('ORANGTUA')")
+    public Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getListOrtu(
+            JwtAuthentication<String> jwtAuth,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam(value = "page", defaultValue = "0") int page
+    ){
+        return this.service.getListForOrtu(Long.parseLong(jwtAuth.getId()), PageRequest.of(page, limit));
     }
 }

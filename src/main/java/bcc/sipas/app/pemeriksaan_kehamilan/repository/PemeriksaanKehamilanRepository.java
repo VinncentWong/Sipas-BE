@@ -1,6 +1,7 @@
 package bcc.sipas.app.pemeriksaan_kehamilan.repository;
 
 import bcc.sipas.entity.DataPemeriksaanKehamilan;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,6 +47,7 @@ public class PemeriksaanKehamilanRepository {
         .offset(page.getOffset());
         return  this.template
                 .select(query, DataPemeriksaanKehamilan.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data pemeriksaan kehamilan tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .flatMap((t) -> Mono.<Page<DataPemeriksaanKehamilan>>fromCallable(() -> new PageImpl<>(t.getT1(), page, t.getT2())));
@@ -60,6 +62,7 @@ public class PemeriksaanKehamilanRepository {
         );
         return this.template
                 .select(query, DataPemeriksaanKehamilan.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data pemeriksaan kehamilan tidak ditemukan")))
                 .collectList();
     }
 }

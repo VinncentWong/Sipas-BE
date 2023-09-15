@@ -1,6 +1,7 @@
 package bcc.sipas.app.pemeriksaan_anak.repository;
 
 import bcc.sipas.entity.DataPemeriksaanAnak;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,7 @@ public class PemeriksaanAnakRepository {
         return Mono.from(this
                 .template
                 .select(query, DataPemeriksaanAnak.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data pemeriksaan anak tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .flatMapMany((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), page, t.getT2())))
@@ -64,6 +66,7 @@ public class PemeriksaanAnakRepository {
         return this.template
                 .select(query, DataPemeriksaanAnak.class)
                 .collectList()
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data pemeriksaan anak tidak ditemukan")))
                 .zipWith(this.repository.count())
                 .map((l) -> new PageImpl<>(l.getT1(), pageable, l.getT2()));
     }

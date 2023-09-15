@@ -1,6 +1,7 @@
 package bcc.sipas.app.artikel.repository;
 
 import bcc.sipas.entity.Artikel;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -76,6 +77,7 @@ public class ArtikelRepository {
                 .limit(pageable.getPageSize());
         return this.template
                 .select(query, Artikel.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data artikel tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .map((m) -> new PageImpl<>(m.getT1(), pageable, m.getT2()));
@@ -87,6 +89,7 @@ public class ArtikelRepository {
         ).limit(pageable.getPageSize()).offset(pageable.getOffset());
         return this.template
                 .select(query, Artikel.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data artikel tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())
                 .map((t) -> new PageImpl<>(t.getT1(), pageable, t.getT2()));

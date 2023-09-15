@@ -2,6 +2,7 @@ package bcc.sipas.app.faskes.repository;
 
 import bcc.sipas.entity.FasilitasKesehatan;
 import bcc.sipas.entity.OrangtuaFaskes;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +43,10 @@ public final class FasilitasKesehatanRepository {
     }
 
     public Mono<FasilitasKesehatan> findByEmail(String email){
-        return this.repository.findByEmail(email);
+        return this.repository.findByEmail(email).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data faskes tidak ditemukan")));
     }
 
     public Mono<FasilitasKesehatan> findOne(Example<FasilitasKesehatan> example){
-        return this.repository.findOne(example);
+        return this.repository.findOne(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data faskes tidak ditemukan")));
     }
 }

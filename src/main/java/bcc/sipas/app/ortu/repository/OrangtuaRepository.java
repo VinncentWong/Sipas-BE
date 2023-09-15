@@ -1,6 +1,7 @@
 package bcc.sipas.app.ortu.repository;
 
 import bcc.sipas.entity.Orangtua;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -48,15 +49,15 @@ public class OrangtuaRepository {
     }
 
     public Mono<Orangtua> findByEmail(String email){
-        return this.repository.findByEmail(email);
+        return this.repository.findByEmail(email).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")));
     }
 
     public Mono<Orangtua> findOne(Example<Orangtua> example){
-        return this.repository.findOne(example);
+        return this.repository.findOne(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")));
     }
 
     public Mono<Orangtua> findById(Long id){
-        return this.repository.findById(id);
+        return this.repository.findById(id).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")));
     }
 
     public Mono<List<Orangtua>> findAll(List<Long> ids, String namaOrtu){
@@ -74,6 +75,7 @@ public class OrangtuaRepository {
         );
         return this.template
                 .select(query, Orangtua.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")))
                 .collectList();
     }
 

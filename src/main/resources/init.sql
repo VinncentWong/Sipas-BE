@@ -214,3 +214,18 @@ CREATE TABLE IF NOT EXISTS "chat_response_usage"(
     -- Helper
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+DROP TABLE IF EXISTS "ajukan_bantuan";
+CREATE TABLE IF NOT EXISTS "ajukan_bantuan"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    judul_ajuan VARCHAR(255) NOT NULL DEFAULT '',
+    deskripsi TEXT NOT NULL DEFAULT '',
+    status VARCHAR(50) NOT NULL DEFAULT '',
+    pesan_tambahan TEXT NOT NULL DEFAULT '',
+    fk_ortu_id INT,
+    fk_faskes_id INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+)

@@ -135,4 +135,28 @@ public class WhatsappService implements IWhatsappService{
                         )
                 ));
     }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getListForOrtu(Long ortuId, Pageable pageable) {
+        return this.repository
+                .getListForOrtu(ortuId, pageable)
+                .map((grupWhatsapps -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<GrupWhatsapp>>builder()
+                                .pagination(
+                                        PaginationResult
+                                                .<List<GrupWhatsapp>>builder()
+                                                .totalElement(grupWhatsapps.getTotalElements())
+                                                .totalPage(grupWhatsapps.getTotalPages())
+                                                .currentElement(grupWhatsapps.getNumberOfElements())
+                                                .currentPage(pageable.getPageNumber())
+                                                .build()
+                                )
+                                .data(grupWhatsapps.getContent())
+                                .success(true)
+                                .message("sukses mendapatkan data grup whatsapp")
+                                .build()
+                )));
+    }
 }

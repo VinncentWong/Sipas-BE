@@ -15,4 +15,5 @@ public interface IWhatsappService {
     Mono<ResponseEntity<Response<GrupWhatsapp>>> update(Long whatsappId, WhatsappDto.CreateUpdate dto);
     Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getList(Long faskesId, Pageable page);
     Mono<ResponseEntity<Response<GrupWhatsapp>>> get(Long whatsappId);
+    Mono<ResponseEntity<Response<List<GrupWhatsapp>>>> getListForOrtu(Long ortuId, Pageable pageable);
 }

@@ -1,6 +1,7 @@
 package bcc.sipas.app.data_kehamilan.repository;
 
 import bcc.sipas.entity.DataKehamilan;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -27,7 +28,7 @@ public class DataKehamilanRepository {
     }
 
     public  Mono<DataKehamilan> find(Example<DataKehamilan> example){
-        return this.dataKehamilanRepository.findOne(example);
+        return this.dataKehamilanRepository.findOne(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data kehamilan tidak ditemukan")));
     }
 
     public Mono<Long> count(Example<DataKehamilan> example){
@@ -48,6 +49,7 @@ public class DataKehamilanRepository {
         );
         return this.template
                 .select(query, DataKehamilan.class)
+                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data kehamilan tidak ditemukan")))
                 .collectList();
     }
 }

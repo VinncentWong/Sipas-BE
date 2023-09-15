@@ -1,6 +1,7 @@
 package bcc.sipas.app.orang_tua_faskes.repository;
 
 import bcc.sipas.entity.OrangtuaFaskes;
+import bcc.sipas.exception.DataTidakDitemukanException;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +41,27 @@ public class OrangtuaFaskesRepository {
                         Criteria.where("fk_faskes_id").is(faskesId)
                 )
         ).with(pageable);
-        return Mono.from(this.template.select(query, OrangtuaFaskes.class).collectList())
+        return Mono.from(this.template.select(query, OrangtuaFaskes.class).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua faskes tidak ditemukan"))).collectList())
+                .zipWith(this.repository.count())
+                .flatMap((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), pageable, t.getT2())));
+    }
+
+    /***
+     * This method get List of OrangtuaFaskes data with filter faskesId
+     */
+    public Mono<Page<OrangtuaFaskes>> getListForOrtu(Long ortuId, Pageable pageable){
+        Query query = Query.query(
+                CriteriaDefinition.from(
+                        Criteria.where("fk_ortu_id").is(ortuId)
+                )
+        ).with(pageable);
+        return Mono
+                .from(
+                        this
+                                .template
+                                .select(query, OrangtuaFaskes.class)
+                                .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua faskes tidak ditemukan")))
+                                .collectList())
                 .zipWith(this.repository.count())
                 .flatMap((t) -> Mono.fromCallable(() -> new PageImpl<>(t.getT1(), pageable, t.getT2())));
     }
@@ -49,6 +70,6 @@ public class OrangtuaFaskesRepository {
      * This method get List of OrangtuaFaskes data with filter List of orangtua_faskes ids
      */
     public Mono<List<OrangtuaFaskes>> getList(List<Long> id){
-        return this.repository.findAllById(id).collectList();
+        return this.repository.findAllById(id).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua faskes tidak ditemukan"))).collectList();
     }
 }
