@@ -8,31 +8,22 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Table("ajukan_bantuan")
+@Table("orangtua_resep_makanan")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-public class AjukanBantuan {
+public class OrangtuaResepMakanan {
 
     @Id
     private Long id;
 
-    @Column("judul_ajuan")
-    private String judul;
-
-    @Column("deskripsi")
-    private String deskripsi;
-
-    @Column("status")
-    private String status;
-
-    @Column("pesan_tambahan")
-    private String pesanTambahan;
-
     @Column("fk_ortu_id")
     private Long fkOrtuId;
+
+    @Column("fk_resep_makanan_id")
+    private Long fkResepMakananId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate createdAt;

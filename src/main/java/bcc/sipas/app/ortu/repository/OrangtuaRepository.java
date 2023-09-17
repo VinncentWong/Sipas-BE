@@ -29,7 +29,8 @@ public class OrangtuaRepository {
     public Mono<Orangtua> save(Orangtua orangtua){
         orangtua.setCreatedAt(LocalDate.now());
         orangtua.setIsConnectedWithFaskes(false);
-        return Mono.from(factory
+        return Mono.from(
+                factory
                 .create()
                 .flatMapMany((c) -> c.createStatement(IOrangtuaRepository.createSql)
                         .bind("$1", orangtua.getNamaIbu())
@@ -49,7 +50,7 @@ public class OrangtuaRepository {
     }
 
     public Mono<Orangtua> findByEmail(String email){
-        return this.repository.findByEmail(email).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data orangtua tidak ditemukan")));
+        return this.repository.findByEmail(email);
     }
 
     public Mono<Orangtua> findOne(Example<Orangtua> example){

@@ -1,8 +1,12 @@
 package bcc.sipas.dto;
 
 import bcc.sipas.entity.AjukanBantuan;
+import bcc.sipas.entity.StatusAjuan;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
 
 public class AjukanBantuanDto {
 
@@ -20,6 +24,26 @@ public class AjukanBantuanDto {
                     .builder()
                     .judul(this.judulPengajuan)
                     .deskripsi(this.deskripsiPengajuan)
+                    .status(StatusAjuan.diproses.name())
+                    .createdAt(LocalDate.now())
+                    .updatedAt(LocalDate.now())
+                    .build();
+        }
+    }
+
+    public record Update(
+            @NotNull(message = "pesan tambahan harus ada")
+            @NotBlank(message = "pesan tambahan tidak boleh kosong")
+            String pesanTambahan,
+            @Schema(example = "gagal/diproses/sukses")
+            StatusAjuan statusAjuan
+    ){
+        public AjukanBantuan toAjukanBantuan(){
+            return AjukanBantuan
+                    .builder()
+                    .status(statusAjuan.name())
+                    .pesanTambahan(this.pesanTambahan)
+                    .updatedAt(LocalDate.now())
                     .build();
         }
     }

@@ -17,10 +17,10 @@ public class Interceptor {
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(RuntimeException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(RuntimeException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.INTERNAL_SERVER_ERROR,
-                        Response.<Orangtua>builder()
+                        Response.builder()
                                 .build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
@@ -31,10 +31,10 @@ public class Interceptor {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(MethodArgumentNotValidException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(MethodArgumentNotValidException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                    HttpStatus.BAD_REQUEST,
-                   Response.<Orangtua>builder()
+                   Response.builder()
                            .build()
                            .putMessage(ex.getMessage())
                            .putData(null)
@@ -45,10 +45,10 @@ public class Interceptor {
 
     @ExceptionHandler(EmptyAuthorizationHeader.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(EmptyAuthorizationHeader ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(EmptyAuthorizationHeader ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.BAD_REQUEST,
-                        Response.<Orangtua>builder().build()
+                        Response.builder().build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
                                 .putSuccess(false)
@@ -58,10 +58,10 @@ public class Interceptor {
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(UnauthorizedException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(UnauthorizedException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.UNAUTHORIZED,
-                        Response.<Orangtua>builder().build()
+                        Response.builder().build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
                                 .putSuccess(false)
@@ -71,10 +71,10 @@ public class Interceptor {
 
     @ExceptionHandler(EmailSudahAdaException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(EmailSudahAdaException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(EmailSudahAdaException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.CONFLICT,
-                        Response.<Orangtua>builder()
+                        Response.builder()
                                 .build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
@@ -85,10 +85,10 @@ public class Interceptor {
 
     @ExceptionHandler(KredensialTidakValidException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(KredensialTidakValidException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(KredensialTidakValidException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.UNAUTHORIZED,
-                        Response.<Orangtua>builder()
+                        Response.builder()
                                 .build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
@@ -99,10 +99,10 @@ public class Interceptor {
 
     @ExceptionHandler(DataTidakDitemukanException.class)
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(DataTidakDitemukanException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(DataTidakDitemukanException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.OK,
-                        Response.<Orangtua>builder()
+                        Response.builder()
                                 .build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)
@@ -113,10 +113,10 @@ public class Interceptor {
 
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Mono<ResponseEntity<Response<Orangtua>>> handleException(ForbiddenException ex){
+    public Mono<ResponseEntity<Response<Object>>> handleException(ForbiddenException ex){
         return Mono.fromCallable(() -> ResponseUtil.sendResponse(
                         HttpStatus.FORBIDDEN,
-                        Response.<Orangtua>builder()
+                        Response.builder()
                                 .build()
                                 .putMessage(ex.getMessage())
                                 .putData(null)

@@ -26,7 +26,6 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @Slf4j
-@PreAuthorize("hasAnyRole('ORANGTUA', 'FASKES')")
 public class OrangtuaFaskesController {
 
     @Autowired
@@ -42,6 +41,7 @@ public class OrangtuaFaskesController {
             )
     })
     @Parameter(description = "kode unik faskes", in = ParameterIn.QUERY, name = "kode_unik", required = true)
+    @PreAuthorize("hasRole('ORANGTUA')")
     @PostMapping("/faskes/kode/{kode_unik}")
     public Mono<ResponseEntity<Response<OrangtuaFaskes>>> create(
             @RequestParam("kode_unik") String kodeUnik,
@@ -60,6 +60,7 @@ public class OrangtuaFaskesController {
     })
     @Parameter(description = "page", in = ParameterIn.QUERY, name = "page")
     @Parameter(description = "limit", in = ParameterIn.QUERY, name = "limit")
+    @PreAuthorize("hasRole('FASKES')")
     @GetMapping("/faskes")
     public Mono<ResponseEntity<Response<List<OrangtuaFaskes>>>> getList(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,

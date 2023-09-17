@@ -43,7 +43,7 @@ public final class FasilitasKesehatanRepository {
     }
 
     public Mono<FasilitasKesehatan> findByEmail(String email){
-        return this.repository.findByEmail(email).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data faskes tidak ditemukan")));
+        return this.repository.findByEmail(email);
     }
 
     public Mono<FasilitasKesehatan> findOne(Example<FasilitasKesehatan> example){

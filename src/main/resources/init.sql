@@ -223,7 +223,17 @@ CREATE TABLE IF NOT EXISTS "ajukan_bantuan"(
     status VARCHAR(50) NOT NULL DEFAULT '',
     pesan_tambahan TEXT NOT NULL DEFAULT '',
     fk_ortu_id INT,
-    fk_faskes_id INT,
+    -- Helper
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+)
+
+DROP TABLE IF EXISTS "orangtua_resep_makanan";
+CREATE TABLE IF NOT EXISTS "orangtua_resep_makanan"(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    fk_ortu_id INT,
+    fk_resep_makanan_id INT,
     -- Helper
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
