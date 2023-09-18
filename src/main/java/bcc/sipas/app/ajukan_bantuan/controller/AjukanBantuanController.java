@@ -48,7 +48,7 @@ public class AjukanBantuanController {
     }
 
     @Operation(description = "mendapatkan data ajukan bantuan orangtua(dari sisi orangtua)")
-    @PreAuthorize("hasRole('FASKES')")
+    @PreAuthorize("hasRole('ORANGTUA')")
     @Parameter(name = "limit", in = ParameterIn.QUERY)
     @Parameter(name = "page", in = ParameterIn.QUERY)
     @GetMapping(
