@@ -1,0 +1,97 @@
+package bcc.sipas.app.ortu_resep_makanan_artikel_tersimpan.service;
+
+import bcc.sipas.app.ortu_resep_makanan_artikel_tersimpan.repository.OrtuResepMakananArtikelRepository;
+import bcc.sipas.dto.ResepMakananArtikelTersimpanDto;
+import bcc.sipas.entity.ResepMakananArtikelTersimpan;
+import bcc.sipas.entity.Response;
+import bcc.sipas.exception.DatabaseException;
+import bcc.sipas.util.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+
+import java.time.LocalDate;
+
+@Service
+@Transactional
+@Slf4j
+public class OrtuResepMakananArtikelService implements IOrtuResepMakananArtikelService{
+
+    @Autowired
+    private OrtuResepMakananArtikelRepository repository;
+
+    @Override
+    public Mono<ResponseEntity<Response<ResepMakananArtikelTersimpan>>> create(Long ortuId, ResepMakananArtikelTersimpanDto.Create dto) {
+        var resepMakananArtikel = dto.toResepMakananArtikel();
+        resepMakananArtikel.setFkOrtuId(ortuId);
+        resepMakananArtikel.setCreatedAt(LocalDate.now());
+        resepMakananArtikel.setUpdatedAt(LocalDate.now());
+        return this.repository
+                .create(resepMakananArtikel)
+                .flatMap((res) -> {
+                    if(res > 0){
+                        return Mono.just(
+                                ResponseUtil.sendResponse(
+                                HttpStatus.OK,
+                                Response
+                                        .<ResepMakananArtikelTersimpan>builder()
+                                        .message("sukses membuat resep makanan dan artikel dengan orangtua")
+                                        .data(resepMakananArtikel)
+                                        .success(true)
+                                        .build()
+                        ));
+                    } else {
+                        return Mono.error(new DatabaseException("no rows affected"));
+                    }
+                });
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<ResepMakananArtikelTersimpan>>> get(Long ortuId, Long resepMakananId, Long artikelId, String jenis) {
+        return this.repository
+                .get(ortuId, resepMakananId, artikelId, jenis)
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<ResepMakananArtikelTersimpan>builder()
+                                .message("sukses membuat resep makanan dan artikel dengan orangtua")
+                                .data(res)
+                                .success(true)
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> delete(Long ortuId, Long resepMakananId, Long artikelId, String jenis) {
+        return this.repository
+                .delete(ortuId, resepMakananId, artikelId, jenis)
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .message("sukses menghapus resep makanan dan artikel dengan orangtua")
+                                .data(null)
+                                .success(true)
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> activate(Long ortuId, Long resepMakananId, Long artikelId, String jenis) {
+        return this.repository
+                .activate(ortuId, resepMakananId, artikelId, jenis)
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .message("sukses mengaktifkan resep makanan dan artikel dengan orangtua")
+                                .data(null)
+                                .success(true)
+                                .build()
+                ));
+    }
+}

@@ -7,6 +7,7 @@ import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.time.Duration;
 
@@ -30,7 +31,7 @@ class PostgreSQLConnectionFactoryConfiguration {
     private String db;
 
     @Bean
-    public PostgresqlConnectionFactory mysqlConnectionFactory(){
+    public PostgresqlConnectionFactory postgresqlConnectionFactory(){
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration
                         .builder()
@@ -42,5 +43,13 @@ class PostgreSQLConnectionFactoryConfiguration {
                         .connectTimeout(Duration.ofSeconds(5))
                         .build()
         );
+    }
+
+    @Bean
+    public DatabaseClient databaseClient(){
+        return DatabaseClient
+                .builder()
+                .connectionFactory(postgresqlConnectionFactory())
+                .build();
     }
 }

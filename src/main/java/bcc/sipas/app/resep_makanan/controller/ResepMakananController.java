@@ -67,7 +67,7 @@ public class ResepMakananController {
         return this.service.getList(Long.parseLong(jwtAuth.getId()), PageRequest.of(page.intValue(), limit.intValue()));
     }
 
-    @Operation(description = "mendapatkan list data resep makanan")
+    @Operation(description = "menghapus resep makanan")
     @DeleteMapping(
             value = "/{id}",
             produces = {

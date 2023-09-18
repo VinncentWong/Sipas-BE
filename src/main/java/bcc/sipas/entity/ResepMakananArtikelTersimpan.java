@@ -2,22 +2,22 @@ package bcc.sipas.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
-@Table("orangtua_resep_makanan")
+@Table("resep_makanan_artikel_tersimpan")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Builder
-public class OrangtuaResepMakanan {
+@ToString
+public class ResepMakananArtikelTersimpan {
 
-    @Id
-    private Long id;
+    @Column("fk_artikel_id")
+    private Long fkArtikelId;
 
     @Column("fk_ortu_id")
     private Long fkOrtuId;
@@ -25,12 +25,18 @@ public class OrangtuaResepMakanan {
     @Column("fk_resep_makanan_id")
     private Long fkResepMakananId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @Column("jenis")
+    private String jenis;
+
+    @Column("created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate createdAt;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @Column("updated_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate updatedAt;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @Column("deleted_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate deletedAt;
 }

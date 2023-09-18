@@ -2,6 +2,7 @@ package bcc.sipas.app.orang_tua_faskes.controller;
 
 import bcc.sipas.app.orang_tua_faskes.service.IOrangtuaFaskesService;
 import bcc.sipas.entity.OrangtuaFaskes;
+import bcc.sipas.entity.OrangtuaFaskesDescription;
 import bcc.sipas.entity.Response;
 import bcc.sipas.security.authentication.JwtAuthentication;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,5 +69,21 @@ public class OrangtuaFaskesController {
             JwtAuthentication<String> jwtAuthentication
     ){
         return Mono.from(this.service.getList(Long.parseLong(jwtAuthentication.getId()), PageRequest.of(page, limit)));
+    }
+
+    @Operation(description = "mencari deskripsi hubungan orangtua pada suatu faskes")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan data deskripsi ortu fasilitas kesehatan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @GetMapping("/faskes/description")
+    public Mono<ResponseEntity<Response<OrangtuaFaskesDescription>>> getOrtuFaskes(
+            JwtAuthentication<String> jwtAuthentication
+    ){
+        return this.service.getOrtuFaskes(Long.parseLong(jwtAuthentication.getId()));
     }
 }

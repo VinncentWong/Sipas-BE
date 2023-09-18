@@ -8,6 +8,8 @@ import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -104,5 +107,44 @@ class OrangtuaFaskesService implements IOrangtuaFaskesService {
                         )
                     )
                 );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<OrangtuaFaskesDescription>>> getOrtuFaskes(Long ortuId) {
+        return this.orangtuaFaskesRepository
+                .getListForOrtu(ortuId, PageRequest.of(0, 1))
+                .map(Page::getContent)
+                .flatMap((content) -> {
+                    if(content.isEmpty()){
+                        return Mono.error(new DataTidakDitemukanException("data ortu faskes tidak ditemukan"));
+                    } else {
+                        return Mono.just(content.get(0));
+                    }
+                })
+                .flatMap((content) -> Mono.zip(
+                        this.repository.findById(content.getFkOrtuId()),
+                        this.faskesRepository.findOne(Example.of(
+                                FasilitasKesehatan
+                                        .builder()
+                                        .id(content.getFkFaskesId())
+                                        .build()
+                        ))
+                ))
+                .map((t) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<OrangtuaFaskesDescription>builder()
+                                .success(true)
+                                .data(
+                                        OrangtuaFaskesDescription
+                                                .builder()
+                                                .faskes(t.getT2())
+                                                .orangtua(t.getT1())
+                                                .build()
+                                )
+                                .message("sukses mendapatkan data deskripsi orangtua faskes")
+                                .build()
+                ))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

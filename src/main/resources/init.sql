@@ -229,13 +229,15 @@ CREATE TABLE IF NOT EXISTS "ajukan_bantuan"(
     deleted_at TIMESTAMP
 )
 
-DROP TABLE IF EXISTS "orangtua_resep_makanan";
-CREATE TABLE IF NOT EXISTS "orangtua_resep_makanan"(
-    id BIGSERIAL NOT NULL PRIMARY KEY,
+DROP TABLE IF EXISTS "resep_makanan_artikel_tersimpan";
+CREATE TABLE IF NOT EXISTS "resep_makanan_artikel_tersimpan"(
+    fk_artikel_id INT,
     fk_ortu_id INT,
     fk_resep_makanan_id INT,
+    jenis VARCHAR(50),
     -- Helper
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
-)
+    deleted_at TIMESTAMP,
+    PRIMARY KEY(fk_artikel_id, fk_ortu_id, fk_resep_makanan_id, jenis)
+);
