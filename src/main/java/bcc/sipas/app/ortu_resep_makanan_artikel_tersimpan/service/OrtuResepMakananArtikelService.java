@@ -2,12 +2,14 @@ package bcc.sipas.app.ortu_resep_makanan_artikel_tersimpan.service;
 
 import bcc.sipas.app.ortu_resep_makanan_artikel_tersimpan.repository.OrtuResepMakananArtikelRepository;
 import bcc.sipas.dto.ResepMakananArtikelTersimpanDto;
+import bcc.sipas.entity.PaginationResult;
 import bcc.sipas.entity.ResepMakananArtikelTersimpan;
 import bcc.sipas.entity.Response;
 import bcc.sipas.exception.DatabaseException;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional
@@ -91,6 +94,30 @@ public class OrtuResepMakananArtikelService implements IOrtuResepMakananArtikelS
                                 .message("sukses mengaktifkan resep makanan dan artikel dengan orangtua")
                                 .data(null)
                                 .success(true)
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<ResepMakananArtikelTersimpan>>>> getList(Long ortuId, Pageable pageable) {
+        return this.repository
+                .getList(ortuId, pageable)
+                .map((p) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<ResepMakananArtikelTersimpan>>builder()
+                                .message("sukses mendapatkan list hubungan orangtua resep makanan dan artikel")
+                                .success(true)
+                                .data(p.getContent())
+                                .pagination(
+                                        PaginationResult
+                                                .<List<ResepMakananArtikelTersimpan>>builder()
+                                                .currentPage(pageable.getPageNumber())
+                                                .currentElement(p.getNumberOfElements())
+                                                .totalPage(p.getTotalPages())
+                                                .totalElement(p.getTotalElements())
+                                                .build()
+                                )
                                 .build()
                 ));
     }

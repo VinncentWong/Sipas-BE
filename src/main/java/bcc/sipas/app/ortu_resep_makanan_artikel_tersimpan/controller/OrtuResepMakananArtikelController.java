@@ -11,11 +11,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ortu/resepmakanan/artikel")
@@ -88,5 +91,20 @@ public class OrtuResepMakananArtikelController {
             @RequestParam("jenis") String jenis
     ){
         return this.service.delete(Long.parseLong(jwtAuthentication.getId()), resepMakananId, artikelId, jenis);
+    }
+
+    @Operation(description = "mendapatkan list resep makanan dengan artikel dan orangtua")
+    @GetMapping(
+            value = "/list",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<ResepMakananArtikelTersimpan>>>> getList(
+            JwtAuthentication<String> jwtAuthentication,
+            @RequestParam("limit") Integer limit,
+            @RequestParam("page") Integer page
+    ){
+        return this.service.getList(Long.parseLong(jwtAuthentication.getId()), PageRequest.of(page, limit));
     }
 }

@@ -5,6 +5,9 @@ import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -14,11 +17,11 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @Slf4j
-public class OrtuResepMakananArtikelRepository implements IOrtuResepMakananArtikelRepository
-{
+public class OrtuResepMakananArtikelRepository implements IOrtuResepMakananArtikelRepository{
 
     @Autowired
     private R2dbcEntityTemplate template;
@@ -115,5 +118,20 @@ public class OrtuResepMakananArtikelRepository implements IOrtuResepMakananArtik
                         return Mono.just(l);
                     }
                 });
+    }
+
+    @Override
+    public Mono<Page<ResepMakananArtikelTersimpan>> getList(Long ortuId, Pageable pageable) {
+        Query query = Query.query(
+                Criteria.where("fk_ortu_id").is(ortuId)
+                        .and(
+                                Criteria.where("deleted_at").isNull()
+                        )
+        ).with(pageable);
+        return this.template
+                .select(query, ResepMakananArtikelTersimpan.class)
+                .collectList()
+                .zipWith(this.template.count(query, ResepMakananArtikelTersimpan.class))
+                .map((l) -> new PageImpl<>(l.getT1(), pageable, l.getT2()));
     }
 }

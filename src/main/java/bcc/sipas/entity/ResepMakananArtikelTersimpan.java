@@ -2,6 +2,7 @@ package bcc.sipas.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 @ToString
 public class ResepMakananArtikelTersimpan {
 
+    @Id
     @Column("fk_artikel_id")
     private Long fkArtikelId;
 
