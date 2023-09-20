@@ -5,6 +5,7 @@ import bcc.sipas.dto.AjukanBantuanDto;
 import bcc.sipas.entity.AjukanBantuan;
 import bcc.sipas.entity.PaginationResult;
 import bcc.sipas.entity.Response;
+import bcc.sipas.entity.StatusAjuan;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -119,4 +121,30 @@ public class AjukanBantuanService implements IAjukanBantuanService{
                            .build()
                 ));
     }
+
+    @Override
+    public Mono<ResponseEntity<Response<Map<String, ?>>>> count(Long faskesId) {
+        return this.repository
+                .count(faskesId)
+                .map((res) -> {
+                    Long numberOfProcess = res.stream().filter((v) -> v.getStatus().equalsIgnoreCase(StatusAjuan.diproses.name())).count();
+                    Long numberOfAccepted = res.stream().filter((v) -> v.getStatus().equalsIgnoreCase(StatusAjuan.sukses.name())).count();
+                    Long numberOfRejected = res.stream().filter((v) -> v.getStatus().equalsIgnoreCase(StatusAjuan.gagal.name())).count();
+                    return Map.ofEntries(
+                            Map.entry("numberOfProcess", numberOfProcess),
+                            Map.entry("numberOfAccepted", numberOfAccepted),
+                            Map.entry("numberOfRejected", numberOfRejected)
+                    );
+                })
+                .map((map) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Map<String, ?>>builder()
+                                .data(map)
+                                .message("sukses mendapatkan statistik ajuan pada faskes")
+                                .success(true)
+                                .build()
+                ));
+    }
+
 }

@@ -30,4 +30,20 @@ public class DataKehamilanDto {
                     .build();
         }
     }
+
+    public record Update(
+            String namaCalonBayi,
+            String tanggalPertamaHaid
+    ){
+        public DataKehamilan toDataKehamilan(){
+            var builder =  DataKehamilan
+                    .builder()
+                    .updatedAt(LocalDate.now())
+                    .namaCalonBayi(this.namaCalonBayi);
+            if(this.tanggalPertamaHaid != null){
+                builder.tanggalPertamaHaid(LocalDate.parse(this.tanggalPertamaHaid, DateTimeFormatter.ofPattern(DateTimeConstant.DD_MM_YYYY)));
+            }
+            return builder.build();
+        }
+    }
 }

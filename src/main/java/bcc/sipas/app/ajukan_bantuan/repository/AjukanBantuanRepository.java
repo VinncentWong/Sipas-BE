@@ -16,6 +16,9 @@ import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
+
 @Component
 @Slf4j
 public class AjukanBantuanRepository {
@@ -81,5 +84,23 @@ public class AjukanBantuanRepository {
                 .findById(id)
                 .map((v) -> AjukanBantuanMapper.INSTANCE.updateAjukanBantuan(ajukanBantuan, v))
                 .flatMap((v) -> this.repository.save(v));
+    }
+
+    public Mono<List<AjukanBantuan>> count(Long faskesId){
+        return this.ortuFaskesRepository
+                .getList(faskesId, Pageable.unpaged())
+                .map(Page::getContent)
+                .map((res) -> res.stream().parallel().map(OrangtuaFaskes::getFkOrtuId).toList())
+                .flatMap((ortuIds) -> {
+                    Query query = Query.query(
+                            Criteria.where("fk_ortu_id").in(ortuIds)
+                                    .and(
+                                            Criteria.where("deleted_at").isNull()
+                                    )
+                    );
+                    return this.template
+                            .select(query, AjukanBantuan.class)
+                            .collectList();
+                });
     }
 }

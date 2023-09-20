@@ -35,22 +35,25 @@ public class DataAnakRepository {
         return this.repository.save(dataAnak);
     }
 
+    public Mono<DataAnak> get(Example<DataAnak> example){
+        return this.repository.findOne(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")));
+    }
+
     public Flux<DataAnak> getList(Example<DataAnak> example){
         return this.repository.findAll(example).switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")));
     }
 
     public Mono<Page<DataAnak>> getList(Long id, Pageable pageable){
-        return this.template
-                .select(DataAnak.class)
-                .matching(
-                        Query.query(
-                                CriteriaDefinition.from(
-                                        Criteria.where("fk_ortu_id").is(id)
+        Query query = Query.query(
+                CriteriaDefinition.from(
+                        Criteria.where("fk_ortu_id").is(id)
+                                .and(
+                                        Criteria.where("deleted_at").isNull()
                                 )
-                        )
-                                .limit(pageable.getPageSize())
-                                .offset(pageable.getOffset())
-                ).all()
+                )
+        ).with(pageable);
+        return this.template
+                .select(query, DataAnak.class)
                 .switchIfEmpty(Mono.error(new DataTidakDitemukanException("data anak tidak ditemukan")))
                 .collectList()
                 .zipWith(this.repository.count())

@@ -5,10 +5,12 @@ import bcc.sipas.app.orang_tua_faskes.repository.OrangtuaFaskesRepository;
 import bcc.sipas.app.ortu.repository.OrangtuaRepository;
 import bcc.sipas.app.pemeriksaan_anak.repository.PemeriksaanAnakRepository;
 import bcc.sipas.dto.DataAnakDto;
+import bcc.sipas.dto.DataKehamilanDto;
 import bcc.sipas.dto.DataPemeriksaanAnakDto;
 import bcc.sipas.entity.*;
 import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
+import bcc.sipas.mapper.DataAnakMapper;
 import bcc.sipas.util.CollectionUtils;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,6 +82,23 @@ public class DataAnakService implements IDataAnakService{
                                         .build()
                         ))
                 );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<DataAnak>>> get(Long id) {
+        return this.repository
+                .get(Example.of(
+                        DataAnak.builder().id(id).build()
+                ))
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<DataAnak>builder()
+                                .data(res)
+                                .message("sukses mendapatkan data anak")
+                                .success(true)
+                                .build()
+                ));
     }
 
     @Override
@@ -227,6 +247,52 @@ public class DataAnakService implements IDataAnakService{
                     );
                 })
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> update(Long dataAnakId, DataAnakDto.Update dto) {
+        return this.repository
+                .get(Example.of(
+                        DataAnak
+                                .builder()
+                                .id(dataAnakId)
+                                .build()
+                ))
+                .flatMap((res) -> {
+                    res = DataAnakMapper.INSTANCE.update(dto.toDataAnak(), res);
+                    return this.repository.save(res);
+                })
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .success(true)
+                                .message("sukses mengupdate data anak")
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> delete(Long dataAnakId) {
+        return this.repository
+                .get(Example.of(
+                        DataAnak
+                                .builder()
+                                .id(dataAnakId)
+                                .build()
+                ))
+                .flatMap((dataAnak) -> {
+                    dataAnak.setDeletedAt(LocalDate.now());
+                    return this.repository.save(dataAnak);
+                })
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .success(true)
+                                .message("sukses menghapus data anak")
+                                .build()
+                ));
     }
 
 }

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -71,7 +72,6 @@ public class DataAnakController {
                     responseCode = "200"
             )
     })
-    @Parameter(name = "id", in = ParameterIn.QUERY, required = true)
     @Parameter(description = "page", in = ParameterIn.QUERY, name = "page")
     @Parameter(description = "limit", in = ParameterIn.QUERY, name = "limit")
     @GetMapping(
@@ -80,11 +80,11 @@ public class DataAnakController {
             }
     )
     public Mono<ResponseEntity<Response<List<DataAnak>>>> getList(
-            @RequestParam("id") Long id,
+            JwtAuthentication<String> jwtAuth,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "limit", defaultValue = "1") Integer limit
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ){
-        return this.service.getList(id, PageRequest.of(page, limit));
+        return this.service.getList(Long.parseLong(jwtAuth.getId()), PageRequest.of(page, limit));
     }
 
     @PreAuthorize("hasRole('FASKES')")
@@ -121,5 +121,57 @@ public class DataAnakController {
     ){
         DataAnakDto.SearchByName dto = new DataAnakDto.SearchByName(orangtuaName);
         return this.service.getList(Long.parseLong(jwtAuthentication.getId()), dto, PageRequest.of(page.intValue(), limit.intValue()));
+    }
+
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Operation(description = "mengupdate data anak")
+    @Parameter(name = "id", description = "data anak id", in = ParameterIn.PATH)
+    @PutMapping(
+            value = {
+                    "/{id}"
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Void>>> update(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid DataAnakDto.Update dto
+    ){
+        return this.service.update(id, dto);
+    }
+
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Operation(description = "menghapus data anak")
+    @Parameter(name = "id", description = "data anak id", in = ParameterIn.PATH)
+    @DeleteMapping(
+            value = {
+                    "/{id}"
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Void>>> delete(
+            @PathVariable("id") Long id
+    ){
+        return this.service.delete(id);
+    }
+
+    @PreAuthorize("hasRole('ORANGTUA')")
+    @Operation(description = "mendapatkan data anak")
+    @Parameter(name = "id", description = "data anak id", in = ParameterIn.PATH)
+    @GetMapping(
+            value = {
+                    "/{id}"
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<DataAnak>>> get(
+            @PathVariable("id") Long id
+    ){
+        return this.service.get(id);
     }
 }

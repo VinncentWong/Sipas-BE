@@ -14,12 +14,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -94,5 +96,73 @@ public class DataKehamilanController {
             JwtAuthentication<String> jwtAuthentication
     ){
         return this.service.count(Long.parseLong(jwtAuthentication.getId()));
+    }
+
+    @Operation(description = "mendapatkan list data kehamilan dari orangtua")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan list data kehamilan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @GetMapping(
+            value = "/list",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<List<DataKehamilan>>>> getList(
+            JwtAuthentication<String> jwtAuthentication,
+            @RequestParam("page") Integer page,
+            @RequestParam("limit") Integer limit
+    ){
+        return this.service.getList(Long.parseLong(jwtAuthentication.getId()), PageRequest.of(page, limit));
+    }
+
+    @Operation(description = "mengupdate data kehamilan")
+    @Parameter(name = "id", description = "data kehamilan id",in = ParameterIn.PATH)
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan list data kehamilan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @PutMapping(
+            value = "/{id}",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE
+            },
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Void>>> update(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid DataKehamilanDto.Update dto
+    ){
+        return this.service.update(id, dto);
+    }
+
+    @Operation(description = "mengupdate data kehamilan")
+    @Parameter(name = "id", description = "data kehamilan id",in = ParameterIn.PATH)
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mendapatkan list data kehamilan",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @DeleteMapping(
+            value = "/{id}",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Void>>> delete(
+            @PathVariable("id") Long dataKehamilanId
+    ){
+        return this.service.delete(dataKehamilanId);
     }
 }

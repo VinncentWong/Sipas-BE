@@ -8,6 +8,7 @@ import bcc.sipas.dto.DataKehamilanDto;
 import bcc.sipas.entity.*;
 import bcc.sipas.exception.DataTidakDitemukanException;
 import bcc.sipas.exception.DatabaseException;
+import bcc.sipas.mapper.DataKehamilanMapper;
 import bcc.sipas.util.CollectionUtils;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -136,5 +138,76 @@ public class DataKehamilanService implements IDataKehamilanService{
                 })
                 .flatMap((v) -> v)
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<List<DataKehamilan>>>> getList(Long ortuId, Pageable pageable) {
+        return this.repository
+                .getList(ortuId, pageable)
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<List<DataKehamilan>>builder()
+                                .pagination(
+                                        PaginationResult
+                                                .<List<DataKehamilan>>builder()
+                                                .totalElement(res.getTotalElements())
+                                                .totalPage(res.getTotalPages())
+                                                .currentElement(res.getNumberOfElements())
+                                                .currentPage(pageable.getPageNumber())
+                                                .build()
+                                )
+                                .data(res.getContent())
+                                .success(true)
+                                .message("sukses mendapatkan list data kehamilan")
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> update(Long dataKehamilanId, DataKehamilanDto.Update dto) {
+        return this.repository
+                .find(Example.of(
+                        DataKehamilan
+                                .builder()
+                                .id(dataKehamilanId)
+                                .build()
+                ))
+                .flatMap((dataKehamilan) -> {
+                    DataKehamilan dataKehamilanDto = dto.toDataKehamilan();
+                    dataKehamilan = DataKehamilanMapper.INSTANCE.update(dataKehamilanDto, dataKehamilan);
+                    return this.repository.save(dataKehamilan);
+                })
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .message("sukses mengupdate data kehamilan")
+                                .success(true)
+                                .build()
+                ));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Response<Void>>> delete(Long dataKehamilanId) {
+        return this.repository
+                .find(Example.of(
+                        DataKehamilan
+                                .builder()
+                                .id(dataKehamilanId)
+                                .build()
+                ))
+                .flatMap((dataKehamilan) -> {
+                    dataKehamilan.setDeletedAt(LocalDate.now());
+                    return this.repository.save(dataKehamilan);
+                })
+                .map((res) -> ResponseUtil.sendResponse(
+                        HttpStatus.OK,
+                        Response
+                                .<Void>builder()
+                                .success(true)
+                                .message("sukses menghapus data kehamilan")
+                                .build()
+                ));
     }
 }

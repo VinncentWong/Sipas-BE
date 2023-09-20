@@ -7,13 +7,11 @@ public class OpenApiConstant {
 
     public static final String NOTES = """   
     \n
-    Notes: make sure the questions above are related to stunting, nutrition, breastfeeding, breast milk, child nutrition, child height, and child weight! 
-    IF NOT, then if the questions are in ENGLISH or ANY LANGUAGE other than INDONESIA
-    YOU SHOULD return "Question out of context". If it's in INDONESIA LANGUAGE please return "Pertanyaan di luar konteks"
+    Pastikan pertanyaan yang diberikan dalam berkaitan dengan 
+    `Stunting`, `Nutrisi`, `MPASI`, `ASI`, `Gizi Anak`, `Tinggi Anak`, dan `Berat Anak`
     
-    PRIORITY THIS NOTES BEFORE ANSWERING THE QUESTION!
-    
-    IF THE QUESTION IS RELATED TO STUNTING, NUTRITION, BREASTFEEDING, BREASTMILK, 
-    CHILD NUTRITION, CHILD HEIGHT, AND CHILD WEIGHT PLEASE PROVIDE YOUR ANSWER!
+    Utamakan pernyataan di bawah ini:
+    Jika pertanyaan yang diberikan diluar konteks, kembalikan response 
+    `Pertanyaan di luar konteks.` Jangan berikan response tambahan apapun!
     """;
 }

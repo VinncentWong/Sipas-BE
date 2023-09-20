@@ -60,9 +60,51 @@ public class DataAnakDto {
             }
     }
 
-        public record SearchByName(
-                @NotNull(message = "nama ortu harus ada")
-                @NotBlank(message = "nama ortu tidak boleh kosong")
-                String namaOrtu
-        ){}
+    public record SearchByName(
+            @NotNull(message = "nama ortu harus ada")
+            @NotBlank(message = "nama ortu tidak boleh kosong")
+            String namaOrtu
+    ){}
+
+    public record Update(
+            String namaAnak,
+            String tanggalLahirAnak,
+            @Schema(name = "jenisKelamin",example = "laki/perempuan")
+            JenisKelamin jenisKelamin,
+
+            @Schema(name = "kondisiLahir",example = "prematur/sehat/lainnya")
+            KondisiLahir kondisiLahir,
+
+            @PositiveOrZero(message = "nilai minimal adalah 0")
+            Double beratBadanLahir,
+
+            @PositiveOrZero(message = "nilai minimal adalah 0")
+            Double panjangBadanLahir,
+
+            @PositiveOrZero(message = "nilai minimal adalah 0")
+            Double lingkarKepala
+    ){
+        public DataAnak toDataAnak(){
+            /*
+                Will migrate to MapStruct soon since a lot of null checking :D
+             */
+            var builder =  DataAnak
+                    .builder()
+                    .beratBadanLahir(this.beratBadanLahir)
+                    .namaAnak(this.namaAnak)
+                    .lingkarKepala(this.lingkarKepala)
+                    .panjangBadanLahir(this.panjangBadanLahir)
+                    .updatedAt(LocalDate.now());
+            if(this.tanggalLahirAnak != null){
+                builder.tanggalLahir(LocalDate.parse(this.tanggalLahirAnak, DateTimeFormatter.ofPattern(DateTimeConstant.DD_MM_YYYY)));
+            }
+            if(this.kondisiLahir != null){
+                builder.kondisiLahir(this.kondisiLahir.name());
+            }
+            if(this.jenisKelamin != null){
+                builder.jenisKelamin(this.jenisKelamin.name());
+            }
+            return builder.build();
+        }
+    }
 }

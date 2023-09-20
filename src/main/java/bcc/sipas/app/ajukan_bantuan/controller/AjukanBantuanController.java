@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bantuan")
@@ -114,5 +115,19 @@ public class AjukanBantuanController {
             @RequestBody @Valid AjukanBantuanDto.Update dto
     ){
         return this.ajukanBantuanService.update(id, dto);
+    }
+
+    @Operation(description = "mendapatkan statistik data ajukan bantuan dari faskes")
+    @PreAuthorize("hasRole('FASKES')")
+    @GetMapping(
+            value = "/count",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public Mono<ResponseEntity<Response<Map<String, ?>>>> count(
+            JwtAuthentication<String> jwtAuthentication
+    ){
+        return this.ajukanBantuanService.count(Long.parseLong(jwtAuthentication.getId()));
     }
 }
