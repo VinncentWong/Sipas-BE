@@ -1,12 +1,16 @@
 package bcc.sipas.util;
 
+import bcc.sipas.entity.CustomPage;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.v3.core.util.ObjectMapperFactory;
 import lombok.SneakyThrows;
-import org.aspectj.weaver.TypeFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
+import javax.lang.model.type.ReferenceType;
 import java.util.List;
 
 public class ObjectMapperUtils {
@@ -29,6 +33,13 @@ public class ObjectMapperUtils {
     public static <T> List<T> readListValue(String str, Class<T> value){
         var factory = mapper.getTypeFactory();
         return mapper.readValue(str, factory.constructCollectionType(List.class, value));
+    }
+
+    @SneakyThrows
+    public static <T> Page<T> readPageValue(String str, Class<T> value){
+        var factory = mapper.getTypeFactory();
+        var pageType = factory.constructParametricType(CustomPage.class, value);
+        return mapper.readValue(str, pageType);
     }
 
     @SneakyThrows
