@@ -23,16 +23,24 @@ services:
       - POSTGRES_PASSWORD=sipasdb
     ports:
       - "5432:5432"
-  sipas:
-    container_name: "sipas_app"
-    build: .
-    depends_on:
-      - "postgres"
+  redis:
+    container_name: "redis_db"
+    image: "redis:latest"
+    ports:
+      - "6380:6379"
     networks:
       - "sipas_network"
-    ports:
-      - "8081:8080"
-    restart: "on-failure"
+#  sipas:
+#    container_name: "sipas_app"
+#    build: .
+#    depends_on:
+#      - "postgres"
+#      - "redis"
+#    networks:
+#      - "sipas_network"
+#    ports:
+#      - "8081:8080"
+#    restart: "on-failure"
 networks:
   sipas_network:
 volumes:

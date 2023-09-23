@@ -12,6 +12,7 @@ import bcc.sipas.security.authentication.JwtAuthentication;
 import bcc.sipas.util.BcryptUtil;
 import bcc.sipas.util.JwtUtil;
 import bcc.sipas.util.ResponseUtil;
+import io.lettuce.core.RedisClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
