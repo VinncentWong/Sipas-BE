@@ -54,8 +54,7 @@ public class OrangtuaRepository {
                 .flatMap((res) -> Mono.from(res.map((row, metadata) -> (Long)row.get("id"))))
                 .flatMap((res) -> {
                     orangtua.setId(res);
-                    return ops.delete(OrangtuaRedisConstant.ALL)
-                            .then(Mono.just(orangtua));
+                    return Mono.just(orangtua);
                 })
         );
     }
@@ -110,7 +109,6 @@ public class OrangtuaRepository {
                 });
     }
 
-    @SuppressWarnings("unchecked")
     public Mono<List<Orangtua>> findAll(List<Long> ids, String namaOrtu){
         var ops = this.redisTemplate.opsForValue();
         return ops.get(String.format(OrangtuaRedisConstant.GET_LIST_IDS, ids))
@@ -135,7 +133,7 @@ public class OrangtuaRepository {
                             .map(ObjectMapperUtils::writeValueAsString);
                 }))
                 .flatMap((listStr) -> {
-                    var listOrtu = (List<Orangtua>)ObjectMapperUtils.readValue(listStr, List.class);
+                    var listOrtu = ObjectMapperUtils.readListValue(listStr, Orangtua.class);
                     return ops
                             .set(String.format(OrangtuaRedisConstant.GET_LIST_IDS, ids), listStr, Duration.ofMinutes(1))
                             .then(Mono.just(listOrtu));
@@ -146,6 +144,7 @@ public class OrangtuaRepository {
         var ops = this.redisTemplate.opsForValue();
         return this.repository
                 .save(orangtua)
-                .flatMap((res) -> ops.delete(OrangtuaRedisConstant.ALL).then(Mono.just(res)));
+                .flatMap((res) -> this.redisTemplate.keys(OrangtuaRedisConstant.ALL)
+                        .flatMap(ops::delete).then(Mono.just(res)));
     }
 }
