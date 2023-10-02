@@ -43,7 +43,10 @@ public class AjukanBantuanRepository {
     private ReactiveRedisTemplate<String, String> redisTemplate;
 
     public Mono<AjukanBantuan> create(AjukanBantuan ajukanBantuan){
-        return this.repository.save(ajukanBantuan);
+        var ops = this.redisTemplate.opsForValue();
+        return this.redisTemplate.keys(AjukanBantuanRedisConstant.ALL)
+                .flatMap((key) -> ops.delete(key).doOnNext((data) -> log.info("delete key {}", key)))
+                .then(this.repository.save(ajukanBantuan));
     }
 
     public Mono<Page<AjukanBantuan>> getListFaskes(Long faskesId, String statusAjuan, Pageable pageable){
@@ -115,7 +118,7 @@ public class AjukanBantuanRepository {
     public Mono<AjukanBantuan> getById(Long id){
         var ops = this.redisTemplate.opsForValue();
         var key = String.format(AjukanBantuanRedisConstant.GET_BY_ID, id);
-        ops.get(key)
+        return ops.get(key)
                 .switchIfEmpty(Mono.defer(() -> {
                     log.info("redis result null on AjukanBantuanRepository.getById");
                     return this.repository
@@ -131,10 +134,21 @@ public class AjukanBantuanRepository {
     }
 
     public Mono<AjukanBantuan> update(Long id, AjukanBantuan ajukanBantuan){
+        var ops = this.redisTemplate.opsForValue();
         return this.repository
                 .findById(id)
                 .map((v) -> AjukanBantuanMapper.INSTANCE.updateAjukanBantuan(ajukanBantuan, v))
-                .flatMap((v) -> this.repository.save(v));
+                .flatMap((v) -> this.redisTemplate
+                        .keys(AjukanBantuanRedisConstant.ALL)
+                        .flatMap((key) ->
+                                ops
+                                .delete(key)
+                                .doOnNext((data) -> {
+                                    log.info("removing key {}", key);
+                                })
+                        )
+                        .then(this.repository.save(v))
+                );
     }
 
     public Mono<List<AjukanBantuan>> count(Long faskesId){
