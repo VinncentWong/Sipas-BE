@@ -22,7 +22,7 @@ public class Interceptor {
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         Response.builder()
                                 .build()
-                                .putMessage(ex.getMessage())
+                                .putMessage(ex.getMessage() + "with line " + ex.getStackTrace()[0].getLineNumber() + " on class " + ex.getStackTrace()[0].getClassName())
                                 .putData(null)
                                 .putSuccess(false)
                 )
