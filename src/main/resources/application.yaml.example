@@ -35,3 +35,8 @@ cloudinary:
 
 openai:
   key:
+
+redis:
+  host:
+  port:
+  password:
