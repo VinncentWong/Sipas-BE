@@ -25,7 +25,6 @@ public class FasilitasKesehatan {
 
     private String email;
 
-    @JsonIgnore
     private String password;
 
     private String username;

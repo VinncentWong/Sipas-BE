@@ -138,27 +138,29 @@ public class DataAnakService implements IDataAnakService{
                 .map((d) -> d.stream().parallel().map(OrangtuaFaskes::getFkOrtuId).toList())
                 .flatMap((ortuIds) -> this.repository.getList(ortuIds, Pageable.unpaged()))
                 .map(Page::getContent)
-                .map((dataAnaks) -> dataAnaks.stream().parallel().map(DataAnak::getId).toList())
+                .map((dataAnaks) -> dataAnaks.stream().map(DataAnak::getId).toList())
                 .flatMap((dataAnakIds) ->
-                        this
-                                .pemeriksaanAnakRepository
-                                .getList(dataAnakIds, Pageable.unpaged())
-                                .map(Page::getContent)
-                                .map((dataPemeriksaanAnaks) -> ResponseUtil
-                                        .sendResponse(
-                                                HttpStatus.OK,
-                                                Response
-                                                        .<Map<String, Long>>builder()
-                                                        .success(true)
-                                                        .message("sukses mendapatkan data statistik pemeriksaan anak")
-                                                        .data(
-                                                                CollectionUtils.ofLinkedHashMap(
-                                                                        new String[]{"jumlahProfilAnak", "jumlahSudahPeriksa", "jumlahBelumPeriksa"},
-                                                                        new Long[]{(long)dataAnakIds.size(), (long)dataPemeriksaanAnaks.size(), (long)dataAnakIds.size() - dataPemeriksaanAnaks.size()}
+                             this
+                                    .pemeriksaanAnakRepository
+                                    .getList(dataAnakIds, Pageable.unpaged())
+                                    .map(Page::getContent)
+                                    .map((dataPemeriksaanAnaks) ->
+                                         ResponseUtil
+                                                .sendResponse(
+                                                        HttpStatus.OK,
+                                                        Response
+                                                                .<Map<String, Long>>builder()
+                                                                .success(true)
+                                                                .message("sukses mendapatkan data statistik pemeriksaan anak")
+                                                                .data(
+                                                                        CollectionUtils.ofLinkedHashMap(
+                                                                                new String[]{"jumlahProfilAnak", "jumlahSudahPeriksa", "jumlahBelumPeriksa"},
+                                                                                new Long[]{(long) dataAnakIds.size(), (long) dataPemeriksaanAnaks.size(), (long) dataAnakIds.size() - dataPemeriksaanAnaks.size()}
+                                                                        )
                                                                 )
-                                                        )
-                                                        .build()
-                                        ))
+                                                                .build()
+                                                )
+                                    )
                 )
                 .subscribeOn(Schedulers.boundedElastic());
     }

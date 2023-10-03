@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @Builder
+@ToString
 public class GrupWhatsapp {
 
     @Id

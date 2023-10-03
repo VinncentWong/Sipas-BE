@@ -3,14 +3,17 @@ package bcc.sipas.app.chat.service;
 import bcc.sipas.app.chat.repository.ChatMessageRepository;
 import bcc.sipas.app.chat.repository.ChatRepository;
 import bcc.sipas.app.chat.repository.ChatResponseRepository;
+import bcc.sipas.constant.ChatRedisConstant;
 import bcc.sipas.constant.OpenApiConstant;
 import bcc.sipas.constant.SecurityConstant;
 import bcc.sipas.entity.*;
+import bcc.sipas.util.ObjectMapperUtils;
 import bcc.sipas.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -42,6 +47,9 @@ public class ChatService implements IChatService{
 
     @Autowired
     private ChatResponseRepository chatResponseRepository;
+
+    @Autowired
+    private ReactiveRedisTemplate<String, String> redisTemplate;
 
     @Value("${openai.key}")
     private String apiKey;
@@ -79,7 +87,12 @@ public class ChatService implements IChatService{
                             .build();
                     Mono<ChatMessage> chatMessageMono = this.chatMessageRepository.save(chatMessage);
                     Mono<ChatResponse> chatResponseMono = this.chatResponseRepository.save(chatResponse);
-                    return Mono.zip(chatMessageMono, chatResponseMono)
+                    var ops = this.redisTemplate.opsForValue();
+                    var removeKey = this.redisTemplate
+                            .keys(ChatRedisConstant.ALL)
+                            .flatMap((key) -> ops.delete(key).doOnNext((data) -> log.info("delete key {}", key)))
+                            .collectList();
+                    return Mono.zip(chatMessageMono, chatResponseMono, removeKey)
                             .map((v) -> this.repository.save(
                                     ChatResponseUsage
                                             .builder()
@@ -99,49 +112,62 @@ public class ChatService implements IChatService{
                                             .data(d)
                                             .build()
                             )));
-                });
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
     public Mono<ResponseEntity<Response<OpenApiClientResponse>>> get(Long ortuId) {
+        var ops = this.redisTemplate.opsForValue();
+        var key = String.format(ChatRedisConstant.GET_ORTU_ID, ortuId);
         Mono<List<ChatMessage>> chatMessageFlux = this.chatMessageRepository.findByOrtuId(ortuId).collectList();
         Mono<List<ChatResponse>> chatResponseFlux = this.chatResponseRepository.findByOrtuId(ortuId).collectList();
-        return Mono.zip(
-                Mono.from(chatMessageFlux),
-                Mono.from(chatResponseFlux)
-        )
-                .map((v) -> {
-                    List<ChatMessage> listMessage = v.getT1();
-                    List<ChatResponse> listResponse = v.getT2();
-                    Map<LocalDate, List<ChatMessage>> mapMessage = new LinkedHashMap<>();
-                    Map<LocalDate, List<ChatResponse>> mapResponse = new LinkedHashMap<>();
-                    listMessage.forEach((message) -> {
-                        var value = mapMessage.get(message.getCreatedAt());
-                        if(value == null){
-                            var mapListValue = new ArrayList<ChatMessage>();
-                            mapListValue.add(message);
-                            mapMessage.put(message.getCreatedAt(), mapListValue);
-                        } else {
-                            value.add(message);
-                        }
-                    });
-                    listResponse.forEach((response) -> {
-                        var value = mapResponse.get(response.getCreatedAt());
-                        if(value == null){
-                            var mapListValue = new ArrayList<ChatResponse>();
-                            mapListValue.add(response);
-                            mapResponse.put(response.getCreatedAt(), mapListValue);
-                        } else {
-                            value.add(response);
-                        }
-                    });
-                    return List.of(mapMessage, mapResponse);
+        return ops.get(key)
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.info("redis result null on ChatService.get(ortuId)");
+                    return Mono.zip(
+                                    Mono.from(chatMessageFlux),
+                                    Mono.from(chatResponseFlux)
+                            )
+                            .map((v) -> {
+                                List<ChatMessage> listMessage = v.getT1();
+                                List<ChatResponse> listResponse = v.getT2();
+                                Map<LocalDate, List<ChatMessage>> mapMessage = new LinkedHashMap<>();
+                                Map<LocalDate, List<ChatResponse>> mapResponse = new LinkedHashMap<>();
+                                listMessage.forEach((message) -> {
+                                    var value = mapMessage.get(message.getCreatedAt());
+                                    if(value == null){
+                                        var mapListValue = new ArrayList<ChatMessage>();
+                                        mapListValue.add(message);
+                                        mapMessage.put(message.getCreatedAt(), mapListValue);
+                                    } else {
+                                        value.add(message);
+                                    }
+                                });
+                                listResponse.forEach((response) -> {
+                                    var value = mapResponse.get(response.getCreatedAt());
+                                    if(value == null){
+                                        var mapListValue = new ArrayList<ChatResponse>();
+                                        mapListValue.add(response);
+                                        mapResponse.put(response.getCreatedAt(), mapListValue);
+                                    } else {
+                                        value.add(response);
+                                    }
+                                });
+                                return List.of(mapMessage, mapResponse);
+                            })
+                            .map(ObjectMapperUtils::writeValueAsString);
+                }))
+                .flatMap((listStr) -> {
+                    var res = ObjectMapperUtils.readListValue(listStr, Map.class);
+                    return ops.set(key, listStr, Duration.ofMinutes(1))
+                            .then(Mono.just(res));
                 })
                 .map((v) -> {
                     var mapValue = v.get(0);
                     var mapResponse = v.get(1);
-                    List<? extends List<?>> listListChatMessage = mapValue.values().stream().toList();
-                    List<? extends List<?>> listListChatResponse = mapResponse.values().stream().toList();
+                    var listListChatMessage = mapValue.values().stream().toList();
+                    var listListChatResponse = mapResponse.values().stream().toList();
                     return ResponseUtil.sendResponse(
                             HttpStatus.OK,
                             Response
@@ -157,6 +183,7 @@ public class ChatService implements IChatService{
                                     )
                                     .build()
                     );
-                });
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }
