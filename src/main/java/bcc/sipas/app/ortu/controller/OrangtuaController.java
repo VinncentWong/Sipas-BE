@@ -82,7 +82,7 @@ public class OrangtuaController {
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("hasRole('FASKES')")
+    @PreAuthorize("hasAnyRole('FASKES', 'ORANGTUA')")
     @SecurityRequirement(name = "bearerAuth")
     public Mono<ResponseEntity<Response<Orangtua>>> get(@PathVariable("id") Long id){
         return this.orangtuaService.get(id);
