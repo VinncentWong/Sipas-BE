@@ -32,6 +32,9 @@ public class Orangtua {
 
     private String password;
 
+    @Column("image_url")
+    private String imageUrl;
+
     @Column("is_connect_faskes")
     private Boolean isConnectedWithFaskes;
 

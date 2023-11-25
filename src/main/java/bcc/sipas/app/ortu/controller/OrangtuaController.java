@@ -4,6 +4,7 @@ import bcc.sipas.app.ortu.service.IOrangtuaService;
 import bcc.sipas.dto.OrangtuaDto;
 import bcc.sipas.entity.Orangtua;
 import bcc.sipas.entity.Response;
+import bcc.sipas.security.authentication.JwtAuthentication;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -86,5 +88,26 @@ public class OrangtuaController {
     @SecurityRequirement(name = "bearerAuth")
     public Mono<ResponseEntity<Response<Orangtua>>> get(@PathVariable("id") Long id){
         return this.orangtuaService.get(id);
+    }
+
+    @Operation(description = "mengupdate data orangtua")
+    @ApiResponses({
+            @ApiResponse(
+                    description = "sukses mengupdate data orangtua",
+                    useReturnTypeSchema = true,
+                    responseCode = "200"
+            )
+    })
+    @PutMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("hasAnyRole('FASKES', 'ORANGTUA')")
+    @SecurityRequirement(name = "bearerAuth")
+    public Mono<ResponseEntity<Response<Orangtua>>> update(
+            JwtAuthentication<String> jwtAuthentication,
+            @RequestPart("dto") OrangtuaDto.Update dto,
+            @RequestPart(value = "image", required = false) Mono<FilePart> file
+    ){
+        return this.orangtuaService.update(Long.parseLong(jwtAuthentication.getId()), dto.toOrangtua(), file);
     }
 }

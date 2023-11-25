@@ -13,7 +13,7 @@ services:
 #      - "sipas_network"
   postgres:
     container_name: "sipas_db"
-    image: "postgres:latest"
+    image: "postgres:15.5"
     volumes:
       - "postgres_volume:/var/lib/postgresql/data"
     restart: on-failure

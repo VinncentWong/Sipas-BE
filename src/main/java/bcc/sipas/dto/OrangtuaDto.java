@@ -52,7 +52,22 @@ public class OrangtuaDto {
 
             @NotNull(message = "password harus ada")
             @NotBlank(message = "password tidak boleh kosong")
-            @Length(message = "panjang minimal 4", min = 4)
             String password
     ){}
+
+    public record Update(
+            String namaAyah,
+            String namaIbu,
+            String email
+    ){
+        public Orangtua toOrangtua(){
+            return Orangtua
+                    .builder()
+                    .namaAyah(this.namaAyah)
+                    .namaIbu(this.namaIbu)
+                    .email(this.email)
+                    .updatedAt(LocalDate.now())
+                    .build();
+        }
+    }
 }

@@ -241,3 +241,6 @@ CREATE TABLE IF NOT EXISTS "resep_makanan_artikel_tersimpan"(
     deleted_at TIMESTAMP,
     PRIMARY KEY(fk_artikel_id, fk_ortu_id, fk_resep_makanan_id, jenis)
 );
+
+ALTER TABLE "orang_tua"
+ADD COLUMN "image_url" VARCHAR(255);
